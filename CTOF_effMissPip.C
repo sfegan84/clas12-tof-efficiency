@@ -38,13 +38,10 @@ void SetLorentzVector(TLorentzVector &p4,clas12::region_part_ptr rp){
 
 }
 
-void CTOF_eff(){
+//Provide an input filename. If none provided, a hard coded filename is used (void CTOF_eff() version below)
+void CTOF_eff(TString inFileName){
 
-  // Data files to process
-  //TString inputFile("/cache/clas12/rg-a/production/recon/fall2018/torus-1/pass1/v0/dst/train/skim4/skim4_005*.hipo");
-  //TString inputFile("/volatile/clas12/rg-a/production/recon/fall2018/torus-1/pass1/v0/dst/train/dst/train/skim4/*.hipo");
-  TString inputFile("/home/stuart/CLAS/Data/skim4_00503*.hipo");
-  // TString inputFile2("/volatile/clas12/rg-b/production/recon/spring2019/torus-1/pass1/v0/dst/train/inc/*.hipo");
+  TString inputFile = inFileName;
 
   // Creating a TChain of all the input files
   TChain fake("hipo");
@@ -735,5 +732,19 @@ auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi
 
   //saving the file
   fileOutput1.Write();
+
+}
+
+
+//Function wrapper for hard coded filename
+void CTOF_eff(){
+
+  // Data files to process
+  //TString inFile("/cache/clas12/rg-a/production/recon/fall2018/torus-1/pass1/v0/dst/train/skim4/skim4_005*.hipo");
+  //TString inFile("/volatile/clas12/rg-a/production/recon/fall2018/torus-1/pass1/v0/dst/train/dst/train/skim4/*.hipo");
+  TString inFile("/home/stuart/CLAS/Data/skim4_00503*.hipo");
+  // TString inputFile2("/volatile/clas12/rg-b/production/recon/spring2019/torus-1/pass1/v0/dst/train/inc/*.hipo");
+
+  CTOF_eff(inFile); //call the analysis function with this filename 
 
 }
