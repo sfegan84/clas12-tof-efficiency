@@ -84,8 +84,14 @@ Double_t DeltaP, DeltaTheta, DeltaPhi;
   // Gets total events in all files for run dependence binning
   Int_t Bins = files->GetEntries();
   // Output file location and name
+
+  TString outFileName( inFileName(0,inFileName.Length()-5) + "_eff.root"); //trim '.hipo' and add '.root' for output file name
+
+  cout << outFileName << endl;
+
   //TFile fileOutput1("/u/home/sfegan/CTOF_Efficiency_RGA_FALL2018_test_5030s.root","recreate");
-  TFile fileOutput1("/home/stuart/CLAS/CTOF/CTOF_Efficiency_RGA_FALL2018_test5038MissPim.root","recreate");
+  //TFile fileOutput1("/home/stuart/CLAS/CTOF/CTOF_Efficiency_RGA_FALL2018_test5038MissPim.root","recreate");
+  TFile fileOutput1(outFileName,"recreate");
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Create histograms here
