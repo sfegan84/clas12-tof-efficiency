@@ -14,3 +14,5 @@ All versions run in the same way, with two available methods;
 CTOF_eff() runs with a hard-coded input file name, as previous test/development versions
 
 CTOF_eff(TString infile) takes input file name as an argument (requires full or relative path to file)
+
+Plotting Macros also provided
