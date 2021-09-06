@@ -59,18 +59,18 @@
   h_beta_proj->Draw();
 
   c1h = new TCanvas("c1h","c1h",150,10,600,500);
-  //l_piLo = new TLine(-0.1, 0.0, -0.1, 25000.0);
-  //l_piHi = new TLine(0.2, 0.0, 0.2, 25000.0);
-  l_piLo = new TLine(0.702, 0.0, 0.702, 50000.0);
-  l_piHi = new TLine(1.077, 0.0, 1.077, 50000.0);
+  l_piLo = new TLine(-0.1, 0.0, -0.1, 25000.0);
+  l_piHi = new TLine(0.2, 0.0, 0.2, 25000.0);
+  //l_piLo = new TLine(0.702, 0.0, 0.702, 50000.0);
+  //l_piHi = new TLine(1.077, 0.0, 1.077, 50000.0);
   l_piLo->SetLineColor(2);
   l_piHi->SetLineColor(2);
-  //pimmass->Draw();
-  //pimmass2->Draw("same");
+  pimmass->Draw();
+  pimmass2->Draw("same");
   //pipmmass->Draw();
   //pipmmass2->Draw("same");
-  prmmass->Draw();
-  prmmass2->Draw("same");
+  //prmmass->Draw();
+  //prmmass2->Draw("same");
   l_piLo->Draw();
   l_piHi->Draw();
 
@@ -120,13 +120,25 @@
 
   c2a = new TCanvas("c2a","c2a",150,10,600,500);
 
-  Efficiency_0_NDF_2->SetMinimum(0.5);
-  Efficiency_0_NDF_2->Draw("colz");
+  TH2F *h_eff_0_NDF_2 = (TH2F*)h_TracksCD_Charge_pos_NDF2->Clone("Eff_0_NDF2");
+
+  h_eff_0_NDF_2->Divide(h_TrajCD_Charge_pos_NDF2);
+  h_eff_0_NDF_2->SetMinimum(0.5);
+  h_eff_0_NDF_2->Draw("colz");
+
+  //Efficiency_0_NDF_2->SetMinimum(0.5);
+  //Efficiency_0_NDF_2->Draw("colz");
 
   c2b = new TCanvas("c2b","c2b",150,10,600,500);
 
-  Efficiency_1_NDF_2->SetMinimum(0.5);
-  Efficiency_1_NDF_2->Draw("colz");
+  TH2F *h_eff_1_NDF_2 = (TH2F*)h_TracksCD_Charge_neg_NDF2->Clone("Eff_1_NDF2");
+
+  h_eff_1_NDF_2->Divide(h_TrajCD_Charge_neg_NDF2);
+  h_eff_1_NDF_2->SetMinimum(0.5);
+  h_eff_1_NDF_2->Draw("colz");
+
+  //Efficiency_1_NDF_2->SetMinimum(0.5);
+  //Efficiency_1_NDF_2->Draw("colz");
 
 
   c3 = new TCanvas("c3","c3",150,10,1200,500);
