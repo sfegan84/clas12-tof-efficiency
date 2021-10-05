@@ -63,9 +63,12 @@ void CTOF_eff(TString inFileName){
   TLorentzVector pr(0,0,0,db->GetParticle(2212)->Mass()); // proton Px,Py,Pz,E
   TLorentzVector pip(0,0,0,db->GetParticle(211)->Mass()); // pi^+ Px,Py,Pz,E
 
-TLorentzVector misspim;
-// Negative particle set to pi^-
-TLorentzVector pim;
+  TLorentzVector misspim;
+  TLorentzVector misspip;
+  TLorentzVector misspr;
+
+  // Negative particle set to pi^-
+  TLorentzVector pim;
 
 // Variables for 2 pi events
 // Particle numbers for 2pi events
@@ -147,7 +150,7 @@ Double_t DeltaP, DeltaTheta, DeltaPhi;
 
   TH1F *h_Trk_NDF_CD[2]; // Trajectories from Central Tracker
 
-// 2 pi event histograms
+// 2 pi event histograms (missing pim)
 auto* hmass=new TH1F("pimmass","Missing Mass e' p #pi^{+};MM(e'p#pi^{+}) [GeV];Counts",200,-1,1);
 auto* hmass2=new TH1F("pimmass2","Missing Mass e' p #pi^{+} (post cuts);MM(e'p#pi^{+}) [GeV];Counts",200,-1,1);
 auto* hdeltaP=new TH1F("DeltaMomentum","Momentum difference of #pi^{-} detected and reconstructed;#Delta P [GeV];Counts",400,-2,2);
@@ -158,6 +161,14 @@ auto* h_el_thetaPhi=new TH2D("el_thetaPhi","#theta versus #phi, electron;#phi [d
 auto* h_prot_thetaPhi=new TH2D("prot_thetaPhi","#theta versus #phi, Proton;#phi [deg];#theta [deg]",360,-180,180,180,0,180);
 auto* h_pipl_thetaPhi=new TH2D("pipl_thetaPhi","#theta versus #phi, #pi^{+};#phi [deg];#theta [deg]",360,-180,180,180,0,180);
 auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi [deg];#theta [deg]",360,-180,180,180,0,180);
+
+// 2 pi event histograms (missing pip)
+auto* hmass_mpip=new TH1F("pipmass","Missing Mass e' p #pi^{-};MM(e'p#pi^{-}) [GeV];Counts",200,-1,1);
+auto* hmass_mpip2=new TH1F("pipmass2","Missing Mass e' p #pi^{-} (post cuts);MM(e'p#pi^{-}) [GeV];Counts",200,-1,1);
+
+// 2 pi event histograms (missing proton)
+auto* hmass_mpr=new TH1F("protmass","Missing Mass e' #pi^{+} #pi^{-};MM(e'#pi^{+}#pi^{-}) [GeV];Counts",300,-1,2);
+auto* hmass_mpr2=new TH1F("protmass2","Missing Mass e' #pi^{+} #pi^{-} (post cuts);MM(e'#pi^{+}#pi^{-}) [GeV];Counts",300,-1,2);
 
 
   // Looping over negative and positive particles in Central Detector
@@ -222,42 +233,6 @@ auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi
 
   }
 
-
-//   // Looping over the FTOF layers   //only one layer in CTOF
-//   for(Int_t i_detector=0;i_detector<3;i_detector++){
-//     // Looping over negative and positive particles
-//     for(Int_t i_charge=0;i_charge<2;i_charge++){
-//       // Looping over the sectors   //no sectors in CTOF, start with scintillator bar?
-//       for(Int_t i_sector=0;i_sector<6;i_sector++){
-
-//         //create a string which we can append integers to, which allows us to define a number of histograms in a for loop
-//         // Histogram names
-//         ostringstream Traj_name_stream;
-//         ostringstream Tracks_name_stream;
-
-//         // Histogram Titles
-//         ostringstream Traj_title_stream;
-//         ostringstream Tracks_title_stream;
-
-//         // Defining the histogram name strings
-//         Traj_name_stream<<"h_Traj_Det_"<<i_detector<<"_Charge_"<<i_charge<<"_Sec_"<<i_sector;
-//         Tracks_name_stream<<"h_Tracks_Det_"<<i_detector<<"_Charge_"<<i_charge<<"_Sec_"<<i_sector;
-
-//         // Defining the histogram title strings
-//         if (i_detector==0) Traj_title_stream<<"Trajectories FTOF1A Charge "<<2*i_charge-1<<" Sec "<<i_sector+1<<"; Run no.; L [cm]";
-//         else if (i_detector==1) Traj_title_stream<<"Trajectories FTOF1B Charge "<<2*i_charge-1<<" Sec "<<i_sector+1<<"; Run no.; L [cm]";
-//         else if (i_detector==2) Traj_title_stream<<"Trajectories FTOF2 Charge "<<2*i_charge-1<<" Sec "<<i_sector+1<<"; Run no.; L [cm]";
-
-//         //convert the stringstream to a string and define our histograms in each element of the array
-//         h_Trajectories[i_detector][i_charge][i_sector] = new TH3F(Traj_name_stream.str().c_str(),"", Bins,0,Bins,500,0,500, 200, -225, 225);
-//         h_Tracks[i_detector][i_charge][i_sector] = new TH3F(Tracks_name_stream.str().c_str(),"", Bins,0,Bins,500,0,500, 200, -225 , 225);
-
-//         // Setting the title for each histogram as it did not work when put in the lines above
-//         h_Trajectories[i_detector][i_charge][i_sector]->SetTitle(Traj_title_stream.str().c_str());
-//         h_Tracks[i_detector][i_charge][i_sector]->SetTitle(Tracks_title_stream.str().c_str());
-//       }
-//     }
-//   }
 
   // Distance between trajectory point and scintillator hit
   auto* h_radia_residual_CD = new TH1D("h_radia_residual_CD","Distance Between CVT and CTOF hits",150,0,30);
@@ -369,50 +344,63 @@ auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi
       }
            
       // Getting 2pi events (missing proton)
-      // if(nonpion == 1 && electrons.size() == 1 && pims.size() == 1 && pips.size() == 1)
+      if(nonpion == 1 && electrons.size() == 1 && pims.size() == 1 && pips.size() == 1){
+ 	SetLorentzVector(el,electrons[0]);
+	SetLorentzVector(pip,pips[0]);
+	SetLorentzVector(pim,pims[0]);
+	misspr = beam + target - el - pip - pim;
+	hmass_mpr->Fill(misspr.M2());
+      }
+
       // Getting 2pi events (missing pi+)
-      // if(nonproton == 1 && electrons.size() == 1 && protons.size() == 1 && pims.size() == 1)
+      if(nonproton == 1 && electrons.size() == 1 && protons.size() == 1 && pims.size() == 1){
+ 	SetLorentzVector(el,electrons[0]);
+	SetLorentzVector(pr,protons[0]);
+	SetLorentzVector(pim,pims[0]);
+	misspip = beam + target - el - pr - pim;
+	hmass_mpip->Fill(misspip.M2());
+      }
 
       // Getting 2pi events (missing pi-)
-       if(nonelectron == 1 && electrons.size() == 1 && protons.size() == 1 && pips.size() == 1){
+      if(nonelectron == 1 && electrons.size() == 1 && protons.size() == 1 && pips.size() == 1){
  	SetLorentzVector(el,electrons[0]);
-         SetLorentzVector(pr,protons[0]);
-         SetLorentzVector(pip,pips[0]);
-         misspim = beam + target - el - pr - pip;
-         hmass->Fill(misspim.M2());
+	SetLorentzVector(pr,protons[0]);
+	SetLorentzVector(pip,pips[0]);
+	misspim = beam + target - el - pr - pip;
+	hmass->Fill(misspim.M2());
 	
-	 //cut on detected pi- momentum at 400 MeV, to ensure it reaches CTOF and CND
-	 //if(pim.Rho()<0.4) continue;
-
-         // Cut on missing mass of the pi^-
-         if((misspim.M2() > -0.1) && (misspim.M2() < 0.2)){
-           DeltaP = misspim.Rho() - pim.Rho();
-           DeltaTheta = TMath::RadToDeg()* (misspim.Theta() - pim.Theta());
-           DeltaPhi = TMath::RadToDeg()* (misspim.Phi() - pim.Phi());
-	   
-           // Plotting pi^- variables
-           hdeltaP->Fill(DeltaP);
-           hdeltaTheta->Fill(DeltaTheta);
-           hdeltaPhi->Fill(DeltaPhi);
-	   
-	   //(initially) loose cuts
-	   if(fabs(DeltaP) > 0.3) continue;
-	   if(fabs(DeltaTheta) > 10) continue;
-	   if(fabs(DeltaPhi) > 10) continue;
-	   
-	   h_el_thetaPhi->Fill(TMath::RadToDeg()*el.Phi(), TMath::RadToDeg()*el.Theta());
-	   h_prot_thetaPhi->Fill(TMath::RadToDeg()*pr.Phi(), TMath::RadToDeg()*pr.Theta());
-	   h_pipl_thetaPhi->Fill(TMath::RadToDeg()*pip.Phi(), TMath::RadToDeg()*pip.Theta());
-	   h_pimi_thetaPhi->Fill(TMath::RadToDeg()*pim.Phi(), TMath::RadToDeg()*pim.Theta());
-	   
-	   nu = -((el - beam).E());
-	   V3_q = (beam-el).Vect();
-	   W_var = TMath::Sqrt((0.938+nu)*(0.938+nu)-V3_q*V3_q);
-	   
-         hmass2->Fill(misspim.M2());
-
-//{
-//{	  
+	//cut on detected pi- momentum at 400 MeV, to ensure it reaches CTOF and CND
+	//if(pim.Rho()<0.4) continue;
+	
+	// Cut on missing mass of the pi^-
+	if((misspim.M2() > -0.1) && (misspim.M2() < 0.2)){
+	  DeltaP = misspim.Rho() - pim.Rho();
+	  DeltaTheta = TMath::RadToDeg()* (misspim.Theta() - pim.Theta());
+	  DeltaPhi = TMath::RadToDeg()* (misspim.Phi() - pim.Phi());
+	  
+	  // Plotting pi^- variables
+	  hdeltaP->Fill(DeltaP);
+	  hdeltaTheta->Fill(DeltaTheta);
+	  hdeltaPhi->Fill(DeltaPhi);
+	  
+	  //(initially) loose cuts
+	  if(fabs(DeltaP) > 0.3) continue;
+	  if(fabs(DeltaTheta) > 10) continue;
+	  if(fabs(DeltaPhi) > 10) continue;
+	  
+	  h_el_thetaPhi->Fill(TMath::RadToDeg()*el.Phi(), TMath::RadToDeg()*el.Theta());
+	  h_prot_thetaPhi->Fill(TMath::RadToDeg()*pr.Phi(), TMath::RadToDeg()*pr.Theta());
+	  h_pipl_thetaPhi->Fill(TMath::RadToDeg()*pip.Phi(), TMath::RadToDeg()*pip.Theta());
+	  h_pimi_thetaPhi->Fill(TMath::RadToDeg()*pim.Phi(), TMath::RadToDeg()*pim.Theta());
+	  
+	  nu = -((el - beam).E());
+	  V3_q = (beam-el).Vect();
+	  W_var = TMath::Sqrt((0.938+nu)*(0.938+nu)-V3_q*V3_q);
+	  
+	  hmass2->Fill(misspim.M2());
+	  
+	  //{
+	  //{	  
 
 
 	  //second loop
