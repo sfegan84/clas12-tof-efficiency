@@ -37,11 +37,23 @@
 
 using namespace clas12;
 
+
+
+
+
 void SetLorentzVector(TLorentzVector &p4,clas12::region_part_ptr rp){
   p4.SetXYZM(rp->par()->getPx(),rp->par()->getPy(),
   rp->par()->getPz(),p4.M());
 
 }
+
+
+void SecondLoop(int index){
+
+  cout << "Test #" << index << endl;
+
+}
+
 
 //Provide an input filename. If none provided, a hard coded filename is used (void CTOF_eff() version below)
 void CTOF_eff(TString inFileName){
@@ -70,14 +82,16 @@ void CTOF_eff(TString inFileName){
   // Negative particle set to pi^-
   TLorentzVector pim;
 
-// Variables for 2 pi events
-// Particle numbers for 2pi events
-Int_t negative, positive, nonelectron, nonproton, nonpion;
-// Creating variables for comparing detected and missing pion
-Double_t DeltaP, DeltaTheta, DeltaPhi;
-
+  // Variables for 2 pi events
+  // Particle numbers for 2pi events
+  Int_t negative, positive, nonelectron, nonproton, nonpion;
+  // Creating variables for comparing detected and missing pion
+  Double_t DeltaP, DeltaTheta, DeltaPhi;
+  Double_t DeltaP_pip, DeltaTheta_pip, DeltaPhi_pip;
+  Double_t DeltaP_pr, DeltaTheta_pr, DeltaPhi_pr;
+  
   TVector3 V3_q;
-
+  
   Int_t part_pid;
 
   Double_t nu, W_var;
@@ -150,27 +164,27 @@ Double_t DeltaP, DeltaTheta, DeltaPhi;
 
   TH1F *h_Trk_NDF_CD[2]; // Trajectories from Central Tracker
 
-// 2 pi event histograms (missing pim)
-auto* hmass=new TH1F("pimmass","Missing Mass e' p #pi^{+};MM(e'p#pi^{+}) [GeV];Counts",200,-1,1);
-auto* hmass2=new TH1F("pimmass2","Missing Mass e' p #pi^{+} (post cuts);MM(e'p#pi^{+}) [GeV];Counts",200,-1,1);
-auto* hdeltaP=new TH1F("DeltaMomentum","Momentum difference of #pi^{-} detected and reconstructed;#Delta P [GeV];Counts",400,-2,2);
-auto* hdeltaTheta=new TH1F("DeltaTheta","#theta difference of #pi^{-} detected and reconstructed;#Delta #theta [deg];Counts",360,-180,180);
-auto* hdeltaPhi=new TH1F("DeltaPhi","#phi difference of #pi^{-} detected and reconstructed;#Delta #phi [deg];Counts",360,-180,180);
-
-auto* h_el_thetaPhi=new TH2D("el_thetaPhi","#theta versus #phi, electron;#phi [deg];#theta [deg]",360,-180,180,180,0,180);
-auto* h_prot_thetaPhi=new TH2D("prot_thetaPhi","#theta versus #phi, Proton;#phi [deg];#theta [deg]",360,-180,180,180,0,180);
-auto* h_pipl_thetaPhi=new TH2D("pipl_thetaPhi","#theta versus #phi, #pi^{+};#phi [deg];#theta [deg]",360,-180,180,180,0,180);
-auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi [deg];#theta [deg]",360,-180,180,180,0,180);
-
-// 2 pi event histograms (missing pip)
-auto* hmass_mpip=new TH1F("pipmass","Missing Mass e' p #pi^{-};MM(e'p#pi^{-}) [GeV];Counts",200,-1,1);
-auto* hmass_mpip2=new TH1F("pipmass2","Missing Mass e' p #pi^{-} (post cuts);MM(e'p#pi^{-}) [GeV];Counts",200,-1,1);
-
-// 2 pi event histograms (missing proton)
-auto* hmass_mpr=new TH1F("protmass","Missing Mass e' #pi^{+} #pi^{-};MM(e'#pi^{+}#pi^{-}) [GeV];Counts",300,-1,2);
-auto* hmass_mpr2=new TH1F("protmass2","Missing Mass e' #pi^{+} #pi^{-} (post cuts);MM(e'#pi^{+}#pi^{-}) [GeV];Counts",300,-1,2);
-
-
+  // 2 pi event histograms (missing pim)
+  auto* hmass=new TH1F("pimmass","Missing Mass e' p #pi^{+};MM(e'p#pi^{+}) [GeV];Counts",200,-1,1);
+  auto* hmass2=new TH1F("pimmass2","Missing Mass e' p #pi^{+} (post cuts);MM(e'p#pi^{+}) [GeV];Counts",200,-1,1);
+  auto* hdeltaP=new TH1F("DeltaMomentum","Momentum difference of #pi^{-} detected and reconstructed;#Delta P [GeV];Counts",400,-2,2);
+  auto* hdeltaTheta=new TH1F("DeltaTheta","#theta difference of #pi^{-} detected and reconstructed;#Delta #theta [deg];Counts",360,-180,180);
+  auto* hdeltaPhi=new TH1F("DeltaPhi","#phi difference of #pi^{-} detected and reconstructed;#Delta #phi [deg];Counts",360,-180,180);
+  
+  auto* h_el_thetaPhi=new TH2D("el_thetaPhi","#theta versus #phi, electron;#phi [deg];#theta [deg]",360,-180,180,180,0,180);
+  auto* h_prot_thetaPhi=new TH2D("prot_thetaPhi","#theta versus #phi, Proton;#phi [deg];#theta [deg]",360,-180,180,180,0,180);
+  auto* h_pipl_thetaPhi=new TH2D("pipl_thetaPhi","#theta versus #phi, #pi^{+};#phi [deg];#theta [deg]",360,-180,180,180,0,180);
+  auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi [deg];#theta [deg]",360,-180,180,180,0,180);
+  
+  // 2 pi event histograms (missing pip)
+  auto* hmass_mpip=new TH1F("pipmass","Missing Mass e' p #pi^{-};MM(e'p#pi^{-}) [GeV];Counts",200,-1,1);
+  auto* hmass_mpip2=new TH1F("pipmass2","Missing Mass e' p #pi^{-} (post cuts);MM(e'p#pi^{-}) [GeV];Counts",200,-1,1);
+  
+  // 2 pi event histograms (missing proton)
+  auto* hmass_mpr=new TH1F("protmass","Missing Mass e' #pi^{+} #pi^{-};MM(e'#pi^{+}#pi^{-}) [GeV];Counts",300,-1,2);
+  auto* hmass_mpr2=new TH1F("protmass2","Missing Mass e' #pi^{+} #pi^{-} (post cuts);MM(e'#pi^{+}#pi^{-}) [GeV];Counts",300,-1,2);
+  
+  
   // Looping over negative and positive particles in Central Detector
   for(int i_charge=0;i_charge<2;i_charge++){
     
@@ -297,7 +311,7 @@ auto* hmass_mpr2=new TH1F("protmass2","Missing Mass e' #pi^{+} #pi^{-} (post cut
 
     Binno++; // Count the number of files, therefore the number of x bins
 
-    //c12.setEntries(1E5);
+    c12.setEntries(1E5);
     while(c12.next()==true){
       
       auto particles = c12.getDetParticles();
@@ -310,6 +324,13 @@ auto* hmass_mpr2=new TH1F("protmass2","Missing Mass e' #pi^{+} #pi^{-} (post cut
       DeltaP = 0;
       DeltaTheta = 0;
       DeltaPhi = 0;
+      DeltaP_pip = 0;
+      DeltaTheta_pip = 0;
+      DeltaPhi_pip = 0;
+      DeltaP_pr = 0;
+      DeltaTheta_pr = 0;
+      DeltaPhi_pr = 0;
+
       
       auto electrons=c12.getByID(11);
       auto protons=c12.getByID(2212);
@@ -350,8 +371,29 @@ auto* hmass_mpr2=new TH1F("protmass2","Missing Mass e' #pi^{+} #pi^{-} (post cut
 	SetLorentzVector(pim,pims[0]);
 	misspr = beam + target - el - pip - pim;
 	hmass_mpr->Fill(misspr.M2());
-      }
 
+	//missing mass cut here
+	DeltaP_pr = misspr.Rho() - pr.Rho();
+	DeltaTheta_pr = TMath::RadToDeg()* (misspr.Theta() - pr.Theta());
+	DeltaPhi_pr = TMath::RadToDeg()* (misspr.Phi() - pr.Phi());
+
+	// Plotting pi^- variables
+	//hdeltaP->Fill(DeltaP);
+	//hdeltaTheta->Fill(DeltaTheta);
+	//hdeltaPhi->Fill(DeltaPhi);
+	
+	//(initially) loose cuts
+	if(fabs(DeltaP_pr) > 0.3) continue;
+	if(fabs(DeltaTheta_pr) > 10) continue;
+	if(fabs(DeltaPhi_pr) > 10) continue;
+	
+	hmass_mpr2->Fill(misspr.M2());
+
+	//if((misspr.M2() < 0.702) || (misspr.M2() > 1.077)) continue
+
+	SecondLoop(1);
+      }
+      
       // Getting 2pi events (missing pi+)
       if(nonproton == 1 && electrons.size() == 1 && protons.size() == 1 && pims.size() == 1){
  	SetLorentzVector(el,electrons[0]);
@@ -359,6 +401,27 @@ auto* hmass_mpr2=new TH1F("protmass2","Missing Mass e' #pi^{+} #pi^{-} (post cut
 	SetLorentzVector(pim,pims[0]);
 	misspip = beam + target - el - pr - pim;
 	hmass_mpip->Fill(misspip.M2());
+	
+	//missing mass cut here
+	DeltaP_pip = misspip.Rho() - pip.Rho();
+	DeltaTheta_pip = TMath::RadToDeg()* (misspip.Theta() - pip.Theta());
+	DeltaPhi_pip = TMath::RadToDeg()* (misspip.Phi() - pip.Phi());
+
+
+	// Plotting pi^- variables
+	//hdeltaP->Fill(DeltaP);
+	//hdeltaTheta->Fill(DeltaTheta);
+	//hdeltaPhi->Fill(DeltaPhi);
+	
+	//(initially) loose cuts
+	if(fabs(DeltaP_pip) > 0.3) continue;
+	if(fabs(DeltaTheta_pip) > 10) continue;
+	if(fabs(DeltaPhi_pip) > 10) continue;
+
+	hmass_mpip2->Fill(misspip.M2());
+
+	//if((misspip.M2() < -0.1) || (misspip.M2() > 0.2)) continue
+	SecondLoop(2);
       }
 
       // Getting 2pi events (missing pi-)
@@ -373,246 +436,290 @@ auto* hmass_mpr2=new TH1F("protmass2","Missing Mass e' #pi^{+} #pi^{-} (post cut
 	//if(pim.Rho()<0.4) continue;
 	
 	// Cut on missing mass of the pi^-
-	if((misspim.M2() > -0.1) && (misspim.M2() < 0.2)){
-	  DeltaP = misspim.Rho() - pim.Rho();
-	  DeltaTheta = TMath::RadToDeg()* (misspim.Theta() - pim.Theta());
-	  DeltaPhi = TMath::RadToDeg()* (misspim.Phi() - pim.Phi());
-	  
-	  // Plotting pi^- variables
-	  hdeltaP->Fill(DeltaP);
-	  hdeltaTheta->Fill(DeltaTheta);
-	  hdeltaPhi->Fill(DeltaPhi);
-	  
-	  //(initially) loose cuts
-	  if(fabs(DeltaP) > 0.3) continue;
-	  if(fabs(DeltaTheta) > 10) continue;
-	  if(fabs(DeltaPhi) > 10) continue;
-	  
-	  h_el_thetaPhi->Fill(TMath::RadToDeg()*el.Phi(), TMath::RadToDeg()*el.Theta());
-	  h_prot_thetaPhi->Fill(TMath::RadToDeg()*pr.Phi(), TMath::RadToDeg()*pr.Theta());
-	  h_pipl_thetaPhi->Fill(TMath::RadToDeg()*pip.Phi(), TMath::RadToDeg()*pip.Theta());
-	  h_pimi_thetaPhi->Fill(TMath::RadToDeg()*pim.Phi(), TMath::RadToDeg()*pim.Theta());
-	  
-	  nu = -((el - beam).E());
-	  V3_q = (beam-el).Vect();
-	  W_var = TMath::Sqrt((0.938+nu)*(0.938+nu)-V3_q*V3_q);
-	  
-	  hmass2->Fill(misspim.M2());
-	  
-	  //{
-	  //{	  
+	//if((misspim.M2() > -0.1) && (misspim.M2() < 0.2)){
 
 
-	  //second loop
-	  //Set the particle index to 0 and loop through the particles
-	  int pindex=0;
-	  //std::cout << "event" << std::endl;
-	  for(auto& p : particles){
+	DeltaP = misspim.Rho() - pim.Rho();
+	DeltaTheta = TMath::RadToDeg()* (misspim.Theta() - pim.Theta());
+	DeltaPhi = TMath::RadToDeg()* (misspim.Phi() - pim.Phi());
+	
+	// Plotting pi^- variables
+	hdeltaP->Fill(DeltaP);
+	hdeltaTheta->Fill(DeltaTheta);
+	hdeltaPhi->Fill(DeltaPhi);
+	
+	//(initially) loose cuts
+	if(fabs(DeltaP) > 0.3) continue;
+	if(fabs(DeltaTheta) > 10) continue;
+	if(fabs(DeltaPhi) > 10) continue;
+	
+	//hmass2->Fill(misspim.M2());
+
+	if((misspim.M2() < -0.1) || (misspim.M2() > 0.2)) continue;
+
+	h_el_thetaPhi->Fill(TMath::RadToDeg()*el.Phi(), TMath::RadToDeg()*el.Theta());
+	h_prot_thetaPhi->Fill(TMath::RadToDeg()*pr.Phi(), TMath::RadToDeg()*pr.Theta());
+	h_pipl_thetaPhi->Fill(TMath::RadToDeg()*pip.Phi(), TMath::RadToDeg()*pip.Theta());
+	h_pimi_thetaPhi->Fill(TMath::RadToDeg()*pim.Phi(), TMath::RadToDeg()*pim.Theta());
+	
+	nu = -((el - beam).E());
+	V3_q = (beam-el).Vect();
+	W_var = TMath::Sqrt((0.938+nu)*(0.938+nu)-V3_q*V3_q);
+	
+	hmass2->Fill(misspim.M2());
+	
+	//{
+	//{	  
+	
+	SecondLoop(3);
+	//--------------move to function, called by each instance
+	//second loop
+	//Set the particle index to 0 and loop through the particles
+	int pindex=0;
+	//std::cout << "event" << std::endl;
+	for(auto& p : particles){
+	  
+	  //get information from the different detectors
+	  switch(p->getRegion()) {
 	    
-	    //get information from the different detectors
-	    switch(p->getRegion()) {
-
-	      //add a skip of electrons in FT
-	    case FD:
-	      pindex++;
-	      
-	    case CD :
-	      
-	      //std::cout << p->par()->getCharge() << std::endl;
-
-	      //std::cout << "central detector" << endl;
-	      // Increase the particle index with each loop of the particles
-	      pindex++;
-	      
-	      //if(pindex==1){
-		//std::cout << "first CD particle" << p->par()->getPid() << std::endl;
-	      //}
-
-	      //Ignore the first particle (trigger, if it falls in the CTOF) and any neutrals
-	      if (pindex==1 || p->par()->getCharge()==0) continue;
-	      //just ignore neutrals
-	      //if (p->par()->getCharge()==0) continue;
-
-	      //if(p->par()->getPid() ==0) continue;
-	      
-	      runno = c12.runconfig()->getRun(); // Getting the run number
-	      StatusCD = p->par()->getStatus(); // Getting the status
-	      
-	      // Getting the hits in CND
-	      Cal_Hits = (StatusCD / 4000);//%10;
-	      //track status
-	      StatusTrack = ((StatusCD%4000)%100)/10; //Scintillator hits i.e. CND hits
-	      //std::cout<< "Cal_Hits = " << Cal_Hits << " Scintillator Hits = " << StatusTrack <<std::endl;
-	      
-	      //beta, timing?
-	      trackBeta = p->par()->getBeta();
-	      trackBetaCalc = (p->sci(CTOF)->getPath()/((p->sci(CTOF)->getTime())-(p->par()->getVt())))/29.9792;
-	      h_beta->Fill(trackBetaCalc);
-	      
-	      stTime = p->par()->getVt();
-	      h_verttime->Fill(stTime);
-	      trackTime = p->sci(CTOF)->getTime();
-	      h_time->Fill(trackTime);
-	      h_trackPath->Fill(p->sci(CTOF)->getPath());
-	      
-	      // Checking the z vertex before applying a cut
-	      h_z_vertex_CD->Fill(p->par()->getVz());
-	      if(p->par()->getVz() > 2 || p->par()->getVz() < -9)continue;  
-	      
-	      
-	      //Compute track momentum from components
-	      trk_px = p->par()->getPx();
-	      trk_py = p->par()->getPy();
-	      trk_pz = p->par()->getPz();
-	      trackMom = TMath::Sqrt((trk_px*trk_px)+(trk_py*trk_py)+(trk_pz*trk_pz));
-	      
-	      h_beta2->Fill(trackBetaCalc);	  
-	      h_beta_mom->Fill(trackMom,trackBetaCalc);
-	      
-	      //Fill Histogram with and without cut
-	      h_momentum_CD->Fill(trackMom);
-	      //if(trackMom<0.3) continue;  //cut at particle momentum less than 300 MeV
-	      //if(trackMom<0.4) continue;  //cut at particle momentum less than 400 MeV, allowing particle to reach CND
-	      h_momentum_CD_cut->Fill(trackMom);
-	      
-	      
-	      //if((trackBetaCalc<0.2)||(trackBetaCalc>1.2)) continue;
-	      //if(trackBeta<0.2) continue;
-	      //if(trackBeta>1.2) continue;
-	      
-	      
-	      h_CTOF_E->Fill(p->sci(CTOF)->getEnergy());
-	      
-	      
-	      //Skips any particle with no CD status
-	      if(Cal_Hits!=0){
+	    //add a skip of electrons in FT
+	  case FD:
+	    pindex++;
+	    
+	  case CD :
+	    
+	    //std::cout << p->par()->getCharge() << std::endl;
+	    
+	    //std::cout << "central detector" << endl;
+	    // Increase the particle index with each loop of the particles
+	    pindex++;
+	    
+	    //if(pindex==1){
+	    //std::cout << "first CD particle" << p->par()->getPid() << std::endl;
+	    //}
+	    
+	    //Ignore the first particle (trigger, if it falls in the CTOF) and any neutrals
+	    if (pindex==1 || p->par()->getCharge()==0) continue;
+	    //just ignore neutrals
+	    //if (p->par()->getCharge()==0) continue;
+	    
+	    //if(p->par()->getPid() ==0) continue;
+	    
+	    runno = c12.runconfig()->getRun(); // Getting the run number
+	    StatusCD = p->par()->getStatus(); // Getting the status
+	    
+	    // Getting the hits in CND
+	    Cal_Hits = (StatusCD / 4000);//%10;
+	    //track status
+	    StatusTrack = ((StatusCD%4000)%100)/10; //Scintillator hits i.e. CND hits
+	    //std::cout<< "Cal_Hits = " << Cal_Hits << " Scintillator Hits = " << StatusTrack <<std::endl;
+	    
+	    //beta, timing?
+	    trackBeta = p->par()->getBeta();
+	    trackBetaCalc = (p->sci(CTOF)->getPath()/((p->sci(CTOF)->getTime())-(p->par()->getVt())))/29.9792;
+	    h_beta->Fill(trackBetaCalc);
+	    
+	    stTime = p->par()->getVt();
+	    h_verttime->Fill(stTime);
+	    trackTime = p->sci(CTOF)->getTime();
+	    h_time->Fill(trackTime);
+	    h_trackPath->Fill(p->sci(CTOF)->getPath());
+	    
+	    // Checking the z vertex before applying a cut
+	    h_z_vertex_CD->Fill(p->par()->getVz());
+	    if(p->par()->getVz() > 2 || p->par()->getVz() < -9)continue;  
+	    
+	    
+	    //Compute track momentum from components
+	    trk_px = p->par()->getPx();
+	    trk_py = p->par()->getPy();
+	    trk_pz = p->par()->getPz();
+	    trackMom = TMath::Sqrt((trk_px*trk_px)+(trk_py*trk_py)+(trk_pz*trk_pz));
+	    
+	    h_beta2->Fill(trackBetaCalc);	  
+	    h_beta_mom->Fill(trackMom,trackBetaCalc);
+	    
+	    //Fill Histogram with and without cut
+	    h_momentum_CD->Fill(trackMom);
+	    //if(trackMom<0.3) continue;  //cut at particle momentum less than 300 MeV
+	    //if(trackMom<0.4) continue;  //cut at particle momentum less than 400 MeV, allowing particle to reach CND
+	    h_momentum_CD_cut->Fill(trackMom);
+	    
+	    //if((trackBetaCalc<0.2)||(trackBetaCalc>1.2)) continue;
+	    //if(trackBeta<0.2) continue;
+	    //if(trackBeta>1.2) continue;
+	    
+	    h_CTOF_E->Fill(p->sci(CTOF)->getEnergy());
+	    
+	    //Skips any particle with no CD status
+	    if(Cal_Hits!=0){
 	      //Skips any particle with no CD status and no CND hit
 	      //if((Cal_Hits!=0)&&(StatusTrack!=0)){
+	      
+	      h_beta_mom_cut->Fill(trackMom,trackBeta);
+	      h_beta_mom_cut2->Fill(trackMom,trackBetaCalc);
+	      
+	      h_Wvar->Fill(W_var);
+	      
+	      //if(W_var < 1) continue;
+	      
+	      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	      //CTOF
+	      
+	      // Here you can put cuts on the particles you are looking at
+	      
+	      if((p->trk(CVT)->getDetector() ==5)&&(p->trk(CVT)->getNDF() >=0)){
 		
-		h_beta_mom_cut->Fill(trackMom,trackBeta);
-		h_beta_mom_cut2->Fill(trackMom,trackBetaCalc);
+		TrackNDF = (Int_t)(p->trk(CVT)->getNDF());
+		//std::cout << "Track NDF = "<< TrackNDF << endl;
 		
-		h_Wvar->Fill(W_var);
+		if(TrackNDF < 2) continue;  //skip events with track NDF less than 2
 		
-		//if(W_var < 1) continue;
+		if(p->par()->getCharge()>0){//positive tracks
+		  h_Trk_NDF_CD[1]->Fill(p->trk(CVT)->getNDF());
+		}
+		else if(p->par()->getCharge()<0){//negative tracks
+		  h_Trk_NDF_CD[0]->Fill(p->trk(CVT)->getNDF());
+		}
+		else{
+		  continue;  //skip neutrals
+		}
+		//}
 		
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		//CTOF
+		h_time2->Fill(trackTime);
 		
-		// Here you can put cuts on the particles you are looking at
+		//CND hits?
+		if(p->sci(CND)->getDetector()==3){
+		  x_CND = p->sci(CND)->getX();
+		  y_CND = p->sci(CND)->getY();
+		  z_CND = p->sci(CND)->getZ();
+		}
 		
-		if((p->trk(CVT)->getDetector() ==5)&&(p->trk(CVT)->getNDF() >=0)){
-		  
-		  TrackNDF = (Int_t)(p->trk(CVT)->getNDF());
-		  //std::cout << "Track NDF = "<< TrackNDF << endl;
-		  
-		  if(TrackNDF < 2) continue;  //skip events with track NDF less than 2
-		  
-		  if(p->par()->getCharge()>0){//positive tracks
-		    h_Trk_NDF_CD[1]->Fill(p->trk(CVT)->getNDF());
-		  }
-		  else if(p->par()->getCharge()<0){//negative tracks
-		    h_Trk_NDF_CD[0]->Fill(p->trk(CVT)->getNDF());
-		  }
-		  else{
-		    continue;  //skip neutrals
-		  }
-		  //}
-		  
-		  h_time2->Fill(trackTime);
-		  
-		  //CND hits?
-		  if(p->sci(CND)->getDetector()==3){
-		    x_CND = p->sci(CND)->getX();
-		    y_CND = p->sci(CND)->getY();
-		    z_CND = p->sci(CND)->getZ();
-		  }
+		
+		//std::cout << "something " << trackMom << std::endl;
+		//CTOF,1 is inner layer, 2 middle, 3 outer
+		
+		if(p->traj(CTOF,1)->getDetector()==4 && p->traj(CTOF,1)->getLayer()==1){
+		  // Getting the x-, y- and z- co-ordinates from CVT, i.e the track
+		  x_CD =  p->traj(CTOF, 1)->getX();
+		  y_CD =  p->traj(CTOF, 1)->getY();
+		  z_CD = p->traj(CTOF, 1)->getZ();
 		  
 		  
-		  //std::cout << "something " << trackMom << std::endl;
-		  //CTOF,1 is inner layer, 2 middle, 3 outer
+		  // 		    //first order ``Fiducial'' cut, -25 < z_CD < 30 cm
+		  // 		    if((z_CD < -25) || (z_CD > 30)){
+		  // 		      continue;
+		  // 		    }
 		  
-		  if(p->traj(CTOF,1)->getDetector()==4 && p->traj(CTOF,1)->getLayer()==1){
-		    // Getting the x-, y- and z- co-ordinates from CVT, i.e the track
-		    x_CD =  p->traj(CTOF, 1)->getX();
-		    y_CD =  p->traj(CTOF, 1)->getY();
-		    z_CD = p->traj(CTOF, 1)->getZ();
+		  // Getting x-, y- and z- co-ordinates from CTOF hit, i.e. the scintillator hit
+		  if(p->sci(CTOF)->getEnergy()>0){
+		    x_CTOF =  p->sci(CTOF)->getX();
+		    y_CTOF =  p->sci(CTOF)->getY();
+		    z_CTOF =  p->sci(CTOF)->getZ();
 		    
-
-// 		    //first order ``Fiducial'' cut, -25 < z_CD < 30 cm
-// 		    if((z_CD < -25) || (z_CD > 30)){
-// 		      continue;
-// 		    }
-
-		    // Getting x-, y- and z- co-ordinates from CTOF hit, i.e. the scintillator hit
-		    if(p->sci(CTOF)->getEnergy()>0){
-		      x_CTOF =  p->sci(CTOF)->getX();
-		      y_CTOF =  p->sci(CTOF)->getY();
-		      z_CTOF =  p->sci(CTOF)->getZ();
-		      
-		      // Distance between 'track' (probably CVT) and CTOF co-ordinates
-		      radia_residual = sqrt(pow(x_CD-x_CTOF,2) + pow(y_CD-y_CTOF,2) + pow(z_CD-z_CTOF,2));
-		      h_radia_residual_CD->Fill(radia_residual); //do we want to cut on this?
-		      
-		      if(radia_residual>6) continue;
-		      
-		      // Distance between CND and CTOF co-ordinates
-		      radia_CTOF_CND = sqrt(pow(x_CND-x_CTOF,2) + pow(y_CND-y_CTOF,2) + pow(z_CND-z_CTOF,2));
-		      h_radia_CTOF_CND->Fill(radia_CTOF_CND);
-
-		      if(radia_CTOF_CND>30) continue;
-		      
-		      h_path_CTOF_CND->Fill((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath()));
-
-		      //if((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath())>33) continue;
-
-		      //std::cout << ((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath())) <<std::endl;
-		      
+		    // Distance between 'track' (probably CVT) and CTOF co-ordinates
+		    radia_residual = sqrt(pow(x_CD-x_CTOF,2) + pow(y_CD-y_CTOF,2) + pow(z_CD-z_CTOF,2));
+		    h_radia_residual_CD->Fill(radia_residual); //do we want to cut on this?
+		    
+		    if(radia_residual>6) continue;
+		    
+		    // Distance between CND and CTOF co-ordinates
+		    radia_CTOF_CND = sqrt(pow(x_CND-x_CTOF,2) + pow(y_CND-y_CTOF,2) + pow(z_CND-z_CTOF,2));
+		    h_radia_CTOF_CND->Fill(radia_CTOF_CND);
+		    
+		    if(radia_CTOF_CND>30) continue;
+		    
+		    h_path_CTOF_CND->Fill((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath()));
+		    
+		    //if((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath())>33) continue;
+		    
+		    //std::cout << ((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath())) <<std::endl;
+		    
+		  }
+		  
+		  
+		  // 		h_Scint_XY[0]->Fill(x_CTOF,y_CTOF);
+		  // 		h_Scint_XYZ[0]->Fill(x_CTOF,y_CTOF,z_CTOF);
+		  
+		  // 		h_Scint_XY[1]->Fill(x_CD,y_CD);
+		  // 		h_Scint_XYZ[1]->Fill(x_CD,y_CD,z_CD);
+		  
+		  //lets start by converting x,y,z to r,phi,z and visualising the hits
+		  //r_CTOF =  sqrt(pow(x_CTOF,2) + pow(y_CTOF,2));
+		  //phi_CTOF = TMath::RadToDeg()*atan2(y_CTOF,x_CTOF);
+		  ////z_CTOF = z_CTOF;		
+		  
+		  // Calculating d, distance to hit from (0,0) to (x,y)
+		  d_CD = sqrt(pow(x_CD,2) + pow(y_CD,2));   //this is r
+		  
+		  // Calculating alpha, angle from (0,0) to hit, this is phi
+		  //alpha_CD = TMath::RadToDeg()*atan(y_CD/x_CD);  //Check, and fix if necessary, the use of atan, replacing with atan2(y_CD,x_CD)
+		  alpha_CD = TMath::RadToDeg()*atan2(y_CD,x_CD);   //Replacing atan(y/x) with atan2(y_CD,x_CD)
+		  alpha_CTOF = TMath::RadToDeg()*atan2(y_CTOF,x_CTOF);
+		  
+		  //attempt to calculate a "paddle index"
+		  paddleNo = (int)(floor((alpha_CD+180)/7.5));
+		    
+		  //z_CD = z_CD;
+		  
+		  // Positive particles
+		  if(p->par()->getCharge()>0){
+		    ////h_Traj_CD[1]->Fill(i,L_det_1a, L_Perp_1a);
+		    if(p->par()->getPid()==2212){
+		      h_Traj_CD[1]->Fill(z_CTOF, alpha_CTOF);
+		    }
+		    if(p->par()->getPid()==211){
+		      h_Traj_CD[0]->Fill(z_CTOF, alpha_CTOF);
 		    }
 		    
+		    h_Traj_CD_NDF[1][0]->Fill(z_CD, alpha_CD);
+		    //h_Traj_CD_NDF[1][TrackNDF]->Fill(z_CD, alpha_CD);
 		    
-// 		h_Scint_XY[0]->Fill(x_CTOF,y_CTOF);
-// 		h_Scint_XYZ[0]->Fill(x_CTOF,y_CTOF,z_CTOF);
-
-// 		h_Scint_XY[1]->Fill(x_CD,y_CD);
-// 		h_Scint_XYZ[1]->Fill(x_CD,y_CD,z_CD);
-
-		    //lets start by converting x,y,z to r,phi,z and visualising the hits
-		    //r_CTOF =  sqrt(pow(x_CTOF,2) + pow(y_CTOF,2));
-		    //phi_CTOF = TMath::RadToDeg()*atan2(y_CTOF,x_CTOF);
-		    ////z_CTOF = z_CTOF;		
+		    for(int ii=1;ii<10;ii++){
+		      if(TrackNDF>=ii){
+			h_Traj_CD_NDF[1][ii]->Fill(z_CD, alpha_CD);
+		      }
+		    }
 		    
-		    // Calculating d, distance to hit from (0,0) to (x,y)
-		    d_CD = sqrt(pow(x_CD,2) + pow(y_CD,2));   //this is r
+		  }
+		  
+		  // Negative particles
+		  else if(p->par()->getCharge()<0){
+		    ////h_Traj_CD[0]->Fill(i,L_det_1a, L_Perp_1a);
+		    //h_Traj_CD[0]->Fill(z_CTOF, alpha_CTOF);       
 		    
-		    // Calculating alpha, angle from (0,0) to hit, this is phi
-		    //alpha_CD = TMath::RadToDeg()*atan(y_CD/x_CD);  //Check, and fix if necessary, the use of atan, replacing with atan2(y_CD,x_CD)
-		    alpha_CD = TMath::RadToDeg()*atan2(y_CD,x_CD);   //Replacing atan(y/x) with atan2(y_CD,x_CD)
-		    alpha_CTOF = TMath::RadToDeg()*atan2(y_CTOF,x_CTOF);
+		    h_Traj_CD_NDF[0][0]->Fill(z_CD, alpha_CD);           
 		    
-		    //attempt to calculate a "paddle index"
-		    paddleNo = (int)(floor((alpha_CD+180)/7.5));
+		    //h_Traj_CD_NDF[0][TrackNDF]->Fill(z_CD, alpha_CD);
 		    
-		    
-		    //z_CD = z_CD;
-		    
+		    for(int ii=1;ii<10;ii++){
+		      if(TrackNDF>=ii){
+			h_Traj_CD_NDF[0][ii]->Fill(z_CD, alpha_CD);
+		      }
+		    }  
+		  }
+		  
+		  // Check if there is energy deposited on the scintillator
+		  if(p->sci(CTOF)->getEnergy()>0){
 		    // Positive particles
 		    if(p->par()->getCharge()>0){
-		      ////h_Traj_CD[1]->Fill(i,L_det_1a, L_Perp_1a);
+		      ////h_Trk_CD[1]->Fill(i,L_det_1a, L_Perp_1a);
 		      if(p->par()->getPid()==2212){
-			h_Traj_CD[1]->Fill(z_CTOF, alpha_CTOF);
+			h_Trk_CD[1]->Fill(z_CTOF, alpha_CTOF);
 		      }
 		      if(p->par()->getPid()==211){
-			h_Traj_CD[0]->Fill(z_CTOF, alpha_CTOF);
+			h_Trk_CD[0]->Fill(z_CTOF, alpha_CTOF);
 		      }
-
+		      //h_Trk_CD[1]->Fill(z_CTOF, alpha_CTOF);
+		      h_Trk_CD_paddle[1]->Fill(z_CTOF, paddleNo);
 		      
-		      h_Traj_CD_NDF[1][0]->Fill(z_CD, alpha_CD);
-		      //h_Traj_CD_NDF[1][TrackNDF]->Fill(z_CD, alpha_CD);
+		      h_Trk_CD_NDF[1][0]->Fill(z_CD, alpha_CD);
+		      
+		      //h_Trk_CD_NDF[1][TrackNDF]->Fill(z_CD, alpha_CD);
 		      
 		      for(int ii=1;ii<10;ii++){
 			if(TrackNDF>=ii){
-			  h_Traj_CD_NDF[1][ii]->Fill(z_CD, alpha_CD);
+			  h_Trk_CD_NDF[1][ii]->Fill(z_CD, alpha_CD);
 			}
 		      }
 		      
@@ -620,69 +727,27 @@ auto* hmass_mpr2=new TH1F("protmass2","Missing Mass e' #pi^{+} #pi^{-} (post cut
 		    
 		    // Negative particles
 		    else if(p->par()->getCharge()<0){
-		      ////h_Traj_CD[0]->Fill(i,L_det_1a, L_Perp_1a);
-		      //h_Traj_CD[0]->Fill(z_CTOF, alpha_CTOF);       
+		      ////h_Trk_CD[0]->Fill(i,L_det_1a, L_Perp_1a);
+		      //h_Trk_CD[0]->Fill(z_CTOF, alpha_CTOF);
 		      
-		      h_Traj_CD_NDF[0][0]->Fill(z_CD, alpha_CD);           
+		      h_Trk_CD_NDF[0][0]->Fill(z_CD, alpha_CD);
 		      
-		      //h_Traj_CD_NDF[0][TrackNDF]->Fill(z_CD, alpha_CD);
-		      
+		      //h_Trk_CD_NDF[0][TrackNDF]->Fill(z_CD, alpha_CD);
 		      for(int ii=1;ii<10;ii++){
 			if(TrackNDF>=ii){
-			  h_Traj_CD_NDF[0][ii]->Fill(z_CD, alpha_CD);
+			  h_Trk_CD_NDF[0][ii]->Fill(z_CD, alpha_CD);
 			}
 		      }
-		      
 		    }
 		    
-		    // Check if there is energy deposited on the scintillator
-		    if(p->sci(CTOF)->getEnergy()>0){
-		      // Positive particles
-		      if(p->par()->getCharge()>0){
-			////h_Trk_CD[1]->Fill(i,L_det_1a, L_Perp_1a);
-			if(p->par()->getPid()==2212){
-			  h_Trk_CD[1]->Fill(z_CTOF, alpha_CTOF);
-			}
-			if(p->par()->getPid()==211){
-			  h_Trk_CD[0]->Fill(z_CTOF, alpha_CTOF);
-			}
-			//h_Trk_CD[1]->Fill(z_CTOF, alpha_CTOF);
-			h_Trk_CD_paddle[1]->Fill(z_CTOF, paddleNo);
-			
-			h_Trk_CD_NDF[1][0]->Fill(z_CD, alpha_CD);
-			
-			//h_Trk_CD_NDF[1][TrackNDF]->Fill(z_CD, alpha_CD);
-			
-			for(int ii=1;ii<10;ii++){
-			  if(TrackNDF>=ii){
-			    h_Trk_CD_NDF[1][ii]->Fill(z_CD, alpha_CD);
-			  }
-			}
-			
-		      }
-		      
-		      // Negative particles
-		      else if(p->par()->getCharge()<0){
-			////h_Trk_CD[0]->Fill(i,L_det_1a, L_Perp_1a);
-			//h_Trk_CD[0]->Fill(z_CTOF, alpha_CTOF);
-			
-			h_Trk_CD_NDF[0][0]->Fill(z_CD, alpha_CD);
-			
-			//h_Trk_CD_NDF[0][TrackNDF]->Fill(z_CD, alpha_CD);
-			for(int ii=1;ii<10;ii++){
-			  if(TrackNDF>=ii){
-			    h_Trk_CD_NDF[0][ii]->Fill(z_CD, alpha_CD);
-			  }
-			}
-		      }
-
-		    }
 		  }
 		}
 	      }
 	    }
-	  }	  
-	}
+	  }
+	}	  
+	//}
+	//---end second loop
       }
     }
     
@@ -692,7 +757,7 @@ auto* hmass_mpr2=new TH1F("protmass2","Missing Mass e' #pi^{+} #pi^{-} (post cut
 
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Determining Efficiencies - Make it a function
+  // Determining Efficiencies - Make it a function, or do this in post-batch processing
 
   for(Int_t i_charge=0;i_charge<2;i_charge++){
     h_Eff_CD[i_charge] = (TH2F*)h_Trk_CD[i_charge]->Clone(Form("Efficiency_%d",i_charge));
@@ -706,38 +771,6 @@ auto* hmass_mpr2=new TH1F("protmass2","Missing Mass e' #pi^{+} #pi^{-} (post cut
     }
   }
 
-  // Looping over the FTOF layers
-  for(Int_t i_detector=0;i_detector<3;i_detector++){
-    // Looping over negative and positive particles
-    for(Int_t i_charge=0;i_charge<2;i_charge++){
-
-      // Looping over the sectors
-      for(Int_t i_sector=0;i_sector<6;i_sector++){
-        ostringstream Efficiency_name_stream;
-        Efficiency_name_stream<<"h_Efficiency_Det_"<<i_detector<<"_Charge_"<<i_charge<<"_Sec_"<<i_sector;
-        ostringstream Efficiency_title_stream;
-
-        if (i_detector==0) Efficiency_title_stream<<"Efficiency FTOF1A Charge "<<2*i_charge-1<<" Sec "<<i_sector+1<<"; Run no.; L [cm]";
-        else if (i_detector==1) Efficiency_title_stream<<"Efficiency FTOF1B Charge "<<2*i_charge-1<<" Sec "<<i_sector+1<<"; Run no.; L [cm]";
-        else if (i_detector==2) Efficiency_title_stream<<"Efficiency FTOF2 Charge "<<2*i_charge-1<<" Sec "<<i_sector+1<<"; Run no.; L [cm]";
-
-
-//        h_Efficiency[i_detector][i_charge][i_sector]=(TH3F*)h_Tracks[i_detector][i_charge][i_sector]->Clone(Efficiency_name_stream.str().c_str());
-
-
-//        h_Efficiency[i_detector][i_charge][i_sector]->Divide(h_Trajectories[i_detector][i_charge][i_sector]);
-
-//         // Looping over the x bins and changing them to string run numbers
-//         for(Int_t i=0;i<Binno;i++){
-
-//           h_Trajectories[i_detector][i_charge][i_sector]->GetXaxis()->SetBinLabel(h_Trajectories[i_detector][i_charge][i_sector]->GetXaxis()->FindBin(i),v_Runno.at(i));
-//           h_Tracks[i_detector][i_charge][i_sector]->GetXaxis()->SetBinLabel(h_Tracks[i_detector][i_charge][i_sector]->GetXaxis()->FindBin(i),v_Runno.at(i));
-// //          h_Efficiency[i_detector][i_charge][i_sector]->GetXaxis()->SetBinLabel(h_Efficiency[i_detector][i_charge][i_sector]->GetXaxis()->FindBin(i),v_Runno.at(i));
-
-//         }
-      }
-    }
-  }
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -759,3 +792,5 @@ void CTOF_eff(){
   CTOF_eff(inFile); //call the analysis function with this filename 
 
 }
+
+
