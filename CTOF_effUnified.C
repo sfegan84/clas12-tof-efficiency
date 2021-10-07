@@ -107,9 +107,9 @@ TH1D* h_path_CTOF_CND[3];
 TH1D* h_momentum_CD[3];
 TH1D* h_momentum_CD_cut[3];
 
-TH2F *h_Traj_CD[2]; // Trajectories from Central Tracker
-TH2F *h_Trk_CD[2]; // Trajectories from Central Tracker with energy deposited in CND
-TH2F *h_Eff_CD[2]; // Tracks divided by Trajectories
+TH2F *h_Traj_CD[2][3]; // Trajectories from Central Tracker
+TH2F *h_Trk_CD[2][3]; // Trajectories from Central Tracker with energy deposited in CND
+TH2F *h_Eff_CD[2][3]; // Tracks divided by Trajectories
 
 //paddle version
 TH2F *h_Traj_CD_paddle[2]; // Trajectories from Central Tracker
@@ -123,9 +123,9 @@ TH2F *h_CND_XY[2];  //X,Y scintillator hit positions
 TH3F *h_CND_XYZ[2]; //X,Y,Z scintillator hit positions
 
 //Track NDF dependent histos
-TH2F *h_Traj_CD_NDF[2][10]; // Trajectories from Central Tracker
-TH2F *h_Trk_CD_NDF[2][10]; // Trajectories from Central Tracker with energy deposited in CND
-TH2F *h_Eff_CD_NDF[2][10]; // Tracks divided by Trajectories
+TH2F *h_Traj_CD_NDF[2][10][3]; // Trajectories from Central Tracker
+TH2F *h_Trk_CD_NDF[2][10][3]; // Trajectories from Central Tracker with energy deposited in CND
+TH2F *h_Eff_CD_NDF[2][10][3]; // Tracks divided by Trajectories
 
 TH1F *h_Trk_NDF_CD[2]; // Trajectories from Central Tracker
 
@@ -138,7 +138,7 @@ void SetLorentzVector(TLorentzVector &p4,clas12::region_part_ptr rp){
 
 void SecondLoop(int index, vector<region_part_ptr> particles){
 
-  cout << "Test #" << index << endl;
+//  cout << "Test #" << index << endl;
 
 	//--------------move to function, called by each instance
 	//second loop
@@ -334,18 +334,18 @@ void SecondLoop(int index, vector<region_part_ptr> particles){
 		  if(p->par()->getCharge()>0){
 		    ////h_Traj_CD[1]->Fill(i,L_det_1a, L_Perp_1a);
 		    if(p->par()->getPid()==2212){
-		      h_Traj_CD[1]->Fill(z_CTOF, alpha_CTOF);
+		      h_Traj_CD[1][index-1]->Fill(z_CTOF, alpha_CTOF);
 		    }
 		    if(p->par()->getPid()==211){
-		      h_Traj_CD[0]->Fill(z_CTOF, alpha_CTOF);
+		      h_Traj_CD[0][index-1]->Fill(z_CTOF, alpha_CTOF);
 		    }
 		    
-		    h_Traj_CD_NDF[1][0]->Fill(z_CD, alpha_CD);
+		    h_Traj_CD_NDF[1][0][index-1]->Fill(z_CD, alpha_CD);
 		    //h_Traj_CD_NDF[1][TrackNDF]->Fill(z_CD, alpha_CD);
 		    
 		    for(int ii=1;ii<10;ii++){
 		      if(TrackNDF>=ii){
-			h_Traj_CD_NDF[1][ii]->Fill(z_CD, alpha_CD);
+			h_Traj_CD_NDF[1][ii][index-1]->Fill(z_CD, alpha_CD);
 		      }
 		    }
 		    
@@ -356,13 +356,13 @@ void SecondLoop(int index, vector<region_part_ptr> particles){
 		    ////h_Traj_CD[0]->Fill(i,L_det_1a, L_Perp_1a);
 		    //h_Traj_CD[0]->Fill(z_CTOF, alpha_CTOF);       
 		    
-		    h_Traj_CD_NDF[0][0]->Fill(z_CD, alpha_CD);           
+		    h_Traj_CD_NDF[0][0][index-1]->Fill(z_CD, alpha_CD);           
 		    
 		    //h_Traj_CD_NDF[0][TrackNDF]->Fill(z_CD, alpha_CD);
 		    
 		    for(int ii=1;ii<10;ii++){
 		      if(TrackNDF>=ii){
-			h_Traj_CD_NDF[0][ii]->Fill(z_CD, alpha_CD);
+			h_Traj_CD_NDF[0][ii][index-1]->Fill(z_CD, alpha_CD);
 		      }
 		    }  
 		  }
@@ -373,21 +373,21 @@ void SecondLoop(int index, vector<region_part_ptr> particles){
 		    if(p->par()->getCharge()>0){
 		      ////h_Trk_CD[1]->Fill(i,L_det_1a, L_Perp_1a);
 		      if(p->par()->getPid()==2212){
-			h_Trk_CD[1]->Fill(z_CTOF, alpha_CTOF);
+			h_Trk_CD[1][index-1]->Fill(z_CTOF, alpha_CTOF);
 		      }
 		      if(p->par()->getPid()==211){
-			h_Trk_CD[0]->Fill(z_CTOF, alpha_CTOF);
+			h_Trk_CD[0][index-1]->Fill(z_CTOF, alpha_CTOF);
 		      }
 		      //h_Trk_CD[1]->Fill(z_CTOF, alpha_CTOF);
 		      h_Trk_CD_paddle[1]->Fill(z_CTOF, paddleNo);
 		      
-		      h_Trk_CD_NDF[1][0]->Fill(z_CD, alpha_CD);
+		      h_Trk_CD_NDF[1][0][index-1]->Fill(z_CD, alpha_CD);
 		      
 		      //h_Trk_CD_NDF[1][TrackNDF]->Fill(z_CD, alpha_CD);
 		      
 		      for(int ii=1;ii<10;ii++){
 			if(TrackNDF>=ii){
-			  h_Trk_CD_NDF[1][ii]->Fill(z_CD, alpha_CD);
+			  h_Trk_CD_NDF[1][ii][index-1]->Fill(z_CD, alpha_CD);
 			}
 		      }
 		      
@@ -398,12 +398,12 @@ void SecondLoop(int index, vector<region_part_ptr> particles){
 		      ////h_Trk_CD[0]->Fill(i,L_det_1a, L_Perp_1a);
 		      //h_Trk_CD[0]->Fill(z_CTOF, alpha_CTOF);
 		      
-		      h_Trk_CD_NDF[0][0]->Fill(z_CD, alpha_CD);
+		      h_Trk_CD_NDF[0][0][index-1]->Fill(z_CD, alpha_CD);
 		      
 		      //h_Trk_CD_NDF[0][TrackNDF]->Fill(z_CD, alpha_CD);
 		      for(int ii=1;ii<10;ii++){
 			if(TrackNDF>=ii){
-			  h_Trk_CD_NDF[0][ii]->Fill(z_CD, alpha_CD);
+			  h_Trk_CD_NDF[0][ii][index-1]->Fill(z_CD, alpha_CD);
 			}
 		      }
 		    }
@@ -509,63 +509,108 @@ void CTOF_eff(TString inFileName){
  
   // Create histograms here
   for(int i_topology=0;i_topology<3;i_topology++){
- 
-    h_z_vertex[i_topology] = new TH1D(Form("h_z_vertex",i_topology),"z vertex",100,-15,15);
-    h_z_vertex_CD[i_topology] = new TH1D(Form("h_z_vertex_CD",i_topology),"z vertex (central detector)",100,-15,15);
+    
+    h_z_vertex[i_topology] = new TH1D(Form("h_z_vertex_%d",i_topology),"z vertex",100,-15,15);
+    h_z_vertex_CD[i_topology] = new TH1D(Form("h_z_vertex_CD_%d",i_topology),"z vertex (central detector)",100,-15,15);
     
     h_beta[i_topology] = new TH1D(Form("h_beta_%d",i_topology),"particle velocity",500,-1.0,1.5);
     h_beta2[i_topology] = new TH1D(Form("h_beta2_%d",i_topology),"particle velocity",500,-1.0,1.5);
     h_beta_mom[i_topology] = new TH2D(Form("h_beta_mom_%d",i_topology),"beta vs track momentum",200,0,10,100,-1.0,1.5);
     h_beta_mom_cut[i_topology] = new TH2D(Form("h_beta_mom_cut_%d",i_topology),"beta vs track momentum (post cuts)",200,0,10,100,-1.0,1.5);
     h_beta_mom_cut2[i_topology] = new TH2D(Form("h_beta_mom_cut2_%d",i_topology),"beta vs track momentum (post cuts)",200,0,10,100,-1.0,1.5);
-
+    
     h_verttime[i_topology] = new TH1D(Form("h_verttime_%d",i_topology),"vertex time",1000,-200,200);
     h_time[i_topology] = new TH1D(Form("h_time_%d",i_topology),"hit time",900,-100,200);
     h_time2[i_topology] = new TH1D(Form("h_time2_%d",i_topology),"hit time (cut)",900,-100,200);
     h_trackPath[i_topology] = new TH1D(Form("h_trackPath_%d",i_topology),"Track Path Length (cm)",550,-10,100);
+    
+    h_Wvar[i_topology] = new TH1D(Form("h_Wvar_%d",i_topology),"W (CD)",400,-3,5);
+    
+    h_CTOF_E[i_topology]=new TH1D(Form("h_CTOF_E_%d",i_topology),"Energy deposition in CTOF",200,0.0,50.0);
+    
+    // Distance between trajectory point and scintillator hit
+    h_radia_residual_CD[i_topology] = new TH1D(Form("h_radia_residual_CD_%d",i_topology),"Distance Between CVT and CTOF hits",150,0,30);
+    h_radia_CTOF_CND[i_topology] = new TH1D(Form("h_radia_CTOF_CND_%d",i_topology),"Distance Between CND and CTOF hits",150,0,50);
+    h_path_CTOF_CND[i_topology] = new TH1D(Form("h_path_CTOF_CND_%d",i_topology),"Path Length Difference Between Track at CTOF and CND",150,0,50);
+    
+    h_momentum_CD[i_topology] = new TH1D(Form("h_momentum_CD_%d",i_topology),"Particle Momentum (Central Detector)",200,0,10);
+    h_momentum_CD_cut[i_topology] = new TH1D(Form("h_momentum_CD_cut_%d",i_topology),"Particle Momentum (Central Detector)",200,0,10);
+    
+    
+    // Looping over negative and positive particles in Central Detector
+    for(int i_charge=0;i_charge<2;i_charge++){
+      
+      //create a string which we can append integers to, which allows us to define a number of histograms in a for loop
+      // Histogram names
+      ostringstream TrajCD_name_stream;
+      ostringstream TracksCD_name_stream;
+      // Histogram Titles
+      ostringstream TrajCD_title_stream;
+      ostringstream TracksCD_title_stream;
+      
+      // Defining the histogram name strings
+      TrajCD_name_stream<<"h_TrajCD_Charge_"<<i_charge<<"_"<<i_topology;
+      TracksCD_name_stream<<"h_TracksCD_Charge_"<<i_charge<<"_"<<i_topology;
+      
+      // Defining the histogram title strings
+      TrajCD_title_stream<<"Trajectories CTOF Charge "<<2*i_charge-1<<"_"<<i_topology<<"; z position of hit [cm]; Polar Angle [degrees]";
+      TracksCD_title_stream<<"Tracks CTOF Charge "<<2*i_charge-1<<"_"<<i_topology<<"; z position of hit [cm]; Polar Angle [degrees]";
+      
+      //convert the stringstream to a string and define our histograms in each element of the array
+      h_Traj_CD[i_charge][i_topology] = new TH2F(TrajCD_name_stream.str().c_str(),"", 70,-70,70, 56, -210, 210);
+      h_Trk_CD[i_charge][i_topology] = new TH2F(TracksCD_name_stream.str().c_str(),"", 70,-70,70, 56, -210 , 210);
+      
+      
+      h_Traj_CD[i_charge][i_topology]->SetTitle(TrajCD_title_stream.str().c_str());
+      h_Trk_CD[i_charge][i_topology]->SetTitle(TracksCD_title_stream.str().c_str());
 
-  h_Wvar[i_topology] = new TH1D(Form("h_Wvar_%d",i_topology),"W (CD)",400,-3,5);
-
-  h_CTOF_E[i_topology]=new TH1D(Form("h_CTOF_E_%d",i_topology),"Energy deposition in CTOF",200,0.0,50.0);
-
-  // Distance between trajectory point and scintillator hit
-  h_radia_residual_CD[i_topology] = new TH1D(Form("h_radia_residual_CD_%d",i_topology),"Distance Between CVT and CTOF hits",150,0,30);
-  h_radia_CTOF_CND[i_topology] = new TH1D(Form("h_radia_CTOF_CND_%d",i_topology),"Distance Between CND and CTOF hits",150,0,50);
-  h_path_CTOF_CND[i_topology] = new TH1D(Form("h_path_CTOF_CND_%d",i_topology),"Path Length Difference Between Track at CTOF and CND",150,0,50);
-
-  h_momentum_CD[i_topology] = new TH1D(Form("h_momentum_CD_%d",i_topology),"Particle Momentum (Central Detector)",200,0,10);
-  h_momentum_CD_cut[i_topology] = new TH1D(Form("h_momentum_CD_cut_%d",i_topology),"Particle Momentum (Central Detector)",200,0,10);
-
-}
-
-
+      for(int i_NDF=0;i_NDF<10;i_NDF++){
+	//Track NDF dependent histos
+	//h_Traj_CD_NDF[i_charge][i_NDF] =  new TH2F(Form("h_TrajCD_Charge_%d_NDF_%d",(2*i_charge-1),i_NDF),"", 70,-70,70, 56, -210, 210); // Trajectories from Central Tracker
+	//h_Trk_CD_NDF[i_charge][i_NDF] =  new TH2F(Form("h_TracksCD_Charge_%d_NDF_%d",(2*i_charge-1),i_NDF),"", 70,-70,70, 56, -210, 210); // Trajectories from Central Tracker
+	h_Traj_CD_NDF[i_charge][i_NDF][i_topology] =  new TH2F(Form("h_TrajCD_Charge_%d_NDF_%d_topology_%d",(2*i_charge-1),i_NDF,i_topology),"", 70,-70,70, 224, -210, 210); // Trajectories from Central Tracker
+	h_Trk_CD_NDF[i_charge][i_NDF][i_topology] =  new TH2F(Form("h_TracksCD_Charge_%d_NDF_%d_topology_%d",(2*i_charge-1),i_NDF,i_topology),"", 70,-70,70, 224, -210, 210); // Trajectories from Central Tracker
+	
+	h_Traj_CD_NDF[i_charge][i_NDF][i_topology]->SetTitle(Form("Trajectories CTOF Charge %d NDF %d Topology %d",(2*i_charge-1),i_NDF,i_topology));
+	h_Trk_CD_NDF[i_charge][i_NDF][i_topology]->SetTitle(Form("Tracks CTOF Charge %d NDF %d Topology %d",(2*i_charge-1),i_NDF,i_topology));
+	
+	//old binning
+	//      h_Traj_CD_NDF[i_charge][i_NDF] =  new TH2F(Form("h_TrajCD_Charge_%d_NDF_%d",(2*i_charge-1),i_NDF),"", 160,-80,80, 200, -200, 200); // Trajectories from Central Tracker
+	//      h_Trk_CD_NDF[i_charge][i_NDF] =  new TH2F(Form("h_TracksCD_Charge_%d_NDF_%d",(2*i_charge-1),i_NDF),"", 160,-80,80, 200, -200, 200); // Trajectories from Central Tracker
+	//h_Eff_CD_NDF[i_charge][i_NDF]; // Tracks divided by Trajectories
+      }
+      
+      
+    }
+  }
+  
   
   // Looping over negative and positive particles in Central Detector
   for(int i_charge=0;i_charge<2;i_charge++){
     
     //create a string which we can append integers to, which allows us to define a number of histograms in a for loop
     // Histogram names
-    ostringstream TrajCD_name_stream;
-    ostringstream TracksCD_name_stream;
+    //ostringstream TrajCD_name_stream;
+    //ostringstream TracksCD_name_stream;
     ostringstream TrajCD_paddle_name_stream;
     ostringstream TracksCD_paddle_name_stream;
     
     // Histogram Titles
-    ostringstream TrajCD_title_stream;
-    ostringstream TracksCD_title_stream;
+    //ostringstream TrajCD_title_stream;
+    //ostringstream TracksCD_title_stream;
     
     // Defining the histogram name strings
-    TrajCD_name_stream<<"h_TrajCD_Charge_"<<i_charge;
-    TracksCD_name_stream<<"h_TracksCD_Charge_"<<i_charge;
+    //TrajCD_name_stream<<"h_TrajCD_Charge_"<<i_charge;
+    //TracksCD_name_stream<<"h_TracksCD_Charge_"<<i_charge;
     TrajCD_paddle_name_stream<<"h_TrajCD_paddle_Charge_"<<i_charge;
     TracksCD_paddle_name_stream<<"h_TracksCD_paddle_Charge_"<<i_charge;
     
     // Defining the histogram title strings
-    TrajCD_title_stream<<"Trajectories CTOF Charge "<<2*i_charge-1<<"; z position of hit [cm]; Polar Angle [degrees]";
+    //TrajCD_title_stream<<"Trajectories CTOF Charge "<<2*i_charge-1<<"; z position of hit [cm]; Polar Angle [degrees]";
     
     //convert the stringstream to a string and define our histograms in each element of the array
-    h_Traj_CD[i_charge] = new TH2F(TrajCD_name_stream.str().c_str(),"", 70,-70,70, 56, -210, 210);
-    h_Trk_CD[i_charge] = new TH2F(TracksCD_name_stream.str().c_str(),"", 70,-70,70, 56, -210 , 210);
+    //h_Traj_CD[i_charge] = new TH2F(TrajCD_name_stream.str().c_str(),"", 70,-70,70, 56, -210, 210);
+    //h_Trk_CD[i_charge] = new TH2F(TracksCD_name_stream.str().c_str(),"", 70,-70,70, 56, -210 , 210);
 
     h_Traj_CD_paddle[i_charge] = new TH2F(TrajCD_paddle_name_stream.str().c_str(),"", 70, -70, 70, 50, -1, 49);
     h_Trk_CD_paddle[i_charge] = new TH2F(TracksCD_paddle_name_stream.str().c_str(),"", 70, -70, 70, 50, -1 , 49);
@@ -580,25 +625,10 @@ void CTOF_eff(TString inFileName){
     h_CND_XYZ[i_charge] = new TH3F(Form("h_Scint_XYZ_%d",(2*i_charge-1)),"", 100,-50, 50, 100, -50 , 50, 100, -50 , 50);
 
     // Setting the title for each histogram as it did not work when put in the lines above
-    h_Traj_CD[i_charge]->SetTitle(TrajCD_title_stream.str().c_str());
-    h_Trk_CD[i_charge]->SetTitle(TracksCD_title_stream.str().c_str());
+    //h_Traj_CD[i_charge]->SetTitle(TrajCD_title_stream.str().c_str());
+    //h_Trk_CD[i_charge]->SetTitle(TracksCD_title_stream.str().c_str());
     h_Trk_NDF_CD[i_charge]->SetTitle(Form("h_TracksNDF_CD_%d",(2*i_charge-1)));
 
-    for(int i_NDF=0;i_NDF<10;i_NDF++){
-      //Track NDF dependent histos
-      //h_Traj_CD_NDF[i_charge][i_NDF] =  new TH2F(Form("h_TrajCD_Charge_%d_NDF_%d",(2*i_charge-1),i_NDF),"", 70,-70,70, 56, -210, 210); // Trajectories from Central Tracker
-      //h_Trk_CD_NDF[i_charge][i_NDF] =  new TH2F(Form("h_TracksCD_Charge_%d_NDF_%d",(2*i_charge-1),i_NDF),"", 70,-70,70, 56, -210, 210); // Trajectories from Central Tracker
-      h_Traj_CD_NDF[i_charge][i_NDF] =  new TH2F(Form("h_TrajCD_Charge_%d_NDF_%d",(2*i_charge-1),i_NDF),"", 70,-70,70, 224, -210, 210); // Trajectories from Central Tracker
-      h_Trk_CD_NDF[i_charge][i_NDF] =  new TH2F(Form("h_TracksCD_Charge_%d_NDF_%d",(2*i_charge-1),i_NDF),"", 70,-70,70, 224, -210, 210); // Trajectories from Central Tracker
-
-      h_Traj_CD_NDF[i_charge][i_NDF]->SetTitle(Form("Trajectories CTOF Charge %d NDF %d",(2*i_charge-1),i_NDF));
-      h_Trk_CD_NDF[i_charge][i_NDF]->SetTitle(Form("Tracks CTOF Charge %d NDF %d",(2*i_charge-1),i_NDF));
-
-      //old binning
-      //      h_Traj_CD_NDF[i_charge][i_NDF] =  new TH2F(Form("h_TrajCD_Charge_%d_NDF_%d",(2*i_charge-1),i_NDF),"", 160,-80,80, 200, -200, 200); // Trajectories from Central Tracker
-      //      h_Trk_CD_NDF[i_charge][i_NDF] =  new TH2F(Form("h_TracksCD_Charge_%d_NDF_%d",(2*i_charge-1),i_NDF),"", 160,-80,80, 200, -200, 200); // Trajectories from Central Tracker
-      //h_Eff_CD_NDF[i_charge][i_NDF]; // Tracks divided by Trajectories
-    }
 
   }
 
@@ -615,7 +645,7 @@ void CTOF_eff(TString inFileName){
 
     Binno++; // Count the number of files, therefore the number of x bins
 
-    c12.setEntries(1E5);
+    //c12.setEntries(1E5);
     while(c12.next()==true){
       
       auto particles = c12.getDetParticles();
@@ -695,7 +725,7 @@ void CTOF_eff(TString inFileName){
 
 	//if((misspr.M2() < 0.702) || (misspr.M2() > 1.077)) continue
 
-	//SecondLoop(1);
+	SecondLoop(1,particles);
       }
       
       // Getting 2pi events (missing pi+)
@@ -725,7 +755,7 @@ void CTOF_eff(TString inFileName){
 	hmass_mpip2->Fill(misspip.M2());
 
 	//if((misspip.M2() < -0.1) || (misspip.M2() > 0.2)) continue
-	//SecondLoop(2);
+	SecondLoop(2,particles);
       }
 
       // Getting 2pi events (missing pi-)
@@ -789,14 +819,17 @@ void CTOF_eff(TString inFileName){
   // Determining Efficiencies - Make it a function, or do this in post-batch processing
 
   for(Int_t i_charge=0;i_charge<2;i_charge++){
-    h_Eff_CD[i_charge] = (TH2F*)h_Trk_CD[i_charge]->Clone(Form("Efficiency_%d",i_charge));
+    for(Int_t i_topology=0;i_topology<3;i_topology++){
+      h_Eff_CD[i_charge][i_topology] = (TH2F*)h_Trk_CD[i_charge][i_topology]->Clone(Form("Efficiency_%d_%d",i_charge,i_topology));
 
-    h_Eff_CD[i_charge]->Divide(h_Traj_CD[i_charge]);
-
-    for(Int_t i_NDF=0;i_NDF<10;i_NDF++){
-      h_Eff_CD_NDF[i_charge][i_NDF] = (TH2F*)h_Trk_CD_NDF[i_charge][i_NDF]->Clone(Form("Efficiency_%d_NDF_%d",i_charge,i_NDF));
-      h_Eff_CD_NDF[i_charge][i_NDF]->Divide(h_Traj_CD_NDF[i_charge][i_NDF]);
-      h_Eff_CD_NDF[i_charge][i_NDF]->SetTitle(Form("Efficiency %d NDF %d",(2*i_charge-1),i_NDF));
+      h_Eff_CD[i_charge][i_topology]->Divide(h_Traj_CD[i_charge][i_topology]);
+    
+    
+      for(Int_t i_NDF=0;i_NDF<10;i_NDF++){
+	h_Eff_CD_NDF[i_charge][i_NDF][i_topology] = (TH2F*)h_Trk_CD_NDF[i_charge][i_NDF][i_topology]->Clone(Form("Efficiency_%d_NDF_%d_topology_%d",i_charge,i_NDF,i_topology));
+	h_Eff_CD_NDF[i_charge][i_NDF][i_topology]->Divide(h_Traj_CD_NDF[i_charge][i_NDF][i_topology]);
+	h_Eff_CD_NDF[i_charge][i_NDF][i_topology]->SetTitle(Form("Efficiency %d NDF %d Topology %d",(2*i_charge-1),i_NDF,i_topology));
+      }
     }
   }
 
