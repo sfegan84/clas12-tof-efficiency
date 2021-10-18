@@ -35,12 +35,11 @@ void SetLorentzVector(TLorentzVector &p4,clas12::region_part_ptr rp){
 
 }
 
-void CTOF_eff(){
 
-  // Data files to process
-  //TString inputFile("/cache/clas12/rg-a/production/recon/fall2018/torus-1/pass1/v0/dst/train/skim4/skim4_005*.hipo");
-  TString inputFile("/home/stuart/CLAS/Data/skim4_00503*.hipo");
-  // TString inputFile2("/volatile/clas12/rg-b/production/recon/spring2019/torus-1/pass1/v0/dst/train/inc/*.hipo");
+//Provide an input filename. If none provided, a hard coded filename is used (void CTOF_eff() version below)
+void CTOF_eff(TString inFileName){
+
+  TString inputFile = inFileName;
 
   // Creating a TChain of all the input files
   TChain fake("hipo");
@@ -82,8 +81,13 @@ Double_t DeltaP, DeltaTheta, DeltaPhi;
   // Gets total events in all files for run dependence binning
   Int_t Bins = files->GetEntries();
   // Output file location and name
+
+  TString outFileName( inFileName(0,inFileName.Length()-5) + "_eff.root"); //trim '.hipo' and add '.root' for output file name
+
+  cout << outFileName << endl;
   //TFile fileOutput1("/u/home/sfegan/CTOF_Efficiency_RGA_FALL2018_testTEST.root","recreate");
-  TFile fileOutput1("/home/stuart/CLAS/CTOF/CTOF_Efficiency_RGA_FALL2018_5038test.root","recreate");
+  TFile fileOutput1("/home/stuart/CLAS/CTOF/CTOF_Efficiency_RGA_FALL2018_SingleTrack_test.root","recreate");
+  //TFile fileOutput1(outFileName,"recreate");
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Create histograms here
@@ -753,5 +757,19 @@ auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi
 
   //saving the file
   fileOutput1.Write();
+
+}
+
+
+//Function wrapper for hard coded filename
+void CTOF_eff(){
+
+  // Data files to process
+  //TString inFile("/cache/clas12/rg-a/production/recon/fall2018/torus-1/pass1/v0/dst/train/skim4/skim4_005*.hipo");
+  //TString inFile("/volatile/clas12/rg-a/production/recon/fall2018/torus-1/pass1/v0/dst/train/dst/train/skim4/*.hipo");
+  TString inFile("/home/stuart/CLAS/Data/skim4_00503*.hipo");
+  // TString inputFile2("/volatile/clas12/rg-b/production/recon/spring2019/torus-1/pass1/v0/dst/train/inc/*.hipo");
+
+  CTOF_eff(inFile); //call the analysis function with this filename 
 
 }
