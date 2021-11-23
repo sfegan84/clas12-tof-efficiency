@@ -567,6 +567,8 @@ auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi
 		      if(radia_residual>6) continue;
 		      
 		      // Distance between CND and CTOF co-ordinates
+		      //----THIS!!!!----
+		      //reappropriate as the distance between the etrapolated track at the CND and the CND hit position, but also look at the current distribution, possibly after a cut on the new one
 		      radia_CTOF_CND = sqrt(pow(x_CND-x_CTOF,2) + pow(y_CND-y_CTOF,2) + pow(z_CND-z_CTOF,2));
 		      h_radia_CTOF_CND->Fill(radia_CTOF_CND);
 
