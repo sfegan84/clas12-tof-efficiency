@@ -295,7 +295,7 @@ void SecondLoop(int index, vector<region_part_ptr> particles){
 		    radia_CTOF_CND = sqrt(pow(x_CND-x_CTOF,2) + pow(y_CND-y_CTOF,2) + pow(z_CND-z_CTOF,2));
 		    h_radia_CTOF_CND[index-1]->Fill(radia_CTOF_CND);
 		    
-		    if(radia_CTOF_CND>30) continue;
+		    //if(radia_CTOF_CND>30) continue;
 		    
 		    h_path_CTOF_CND[index-1]->Fill((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath()));
 		    
