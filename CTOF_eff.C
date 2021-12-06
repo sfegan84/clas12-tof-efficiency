@@ -82,7 +82,8 @@ Double_t DeltaP, DeltaTheta, DeltaPhi;
   Int_t Bins = files->GetEntries();
   // Output file location and name
 
-  TString outFileName( inFileName(0,inFileName.Length()-5) + "_eff.root"); //trim '.hipo' and add '.root' for output file name
+  //TString outFileName( inFileName(0,inFileName.Length()-5) + "_eff.root"); //trim '.hipo' and add '.root' for output file name
+  TString outFileName("/u/home/sfegan/CTOF_output/" + inFileName(inFileName.Length()-17,inFileName.Length()-5) + "_single_eff.root"); //trim '.hipo' and add '.root' for output file name
 
   cout << outFileName << endl;
   //TFile fileOutput1("/u/home/sfegan/CTOF_Efficiency_RGA_FALL2018_testTEST.root","recreate");
@@ -248,8 +249,9 @@ auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi
 //   }
 
   // Distance between trajectory point and scintillator hit
-  auto* h_radia_residual_CD = new TH1D("h_radia_residual_CD","Distance Between CVT and CTOF hits",150,0,30);
-  auto* h_radia_CTOF_CND = new TH1D("h_radia_CTOF_CND","Distance Between CND and CTOF hits",150,0,50);
+  auto* h_radia_residual_CD = new TH1D("h_radia_residual_CD","Radial Distance Between Track at CTOF and CTOF hit",150,0,30);
+  auto* h_radia_CTOF_CND = new TH1D("h_radia_CTOF_CND","Radial Distance Between Track at CND and CTOF",150,0,50);
+  auto* h_radia_CND = new TH1D("h_radia_CND","Radial Distance Between Track at CND and CND Hit",150,0,50);
   auto* h_path_CTOF_CND = new TH1D("h_path_CTOF_CND","Path Length Difference Between Track at CTOF and CND",150,0,50);
 
   auto* h_momentum_CD = new TH1D("h_momentum_CD","Particle Momentum (Central Detector)",200,0,10);
@@ -270,13 +272,15 @@ auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi
   Double_t L_Theta; // Angle at middle of sector (check if hit is left or right of the middle of the sector)
   Double_t radia_residual; // Distance between trajectory bank and scintillator hit
   Double_t radia_CTOF_CND; // Distance between CTOF and CND hits
+  Double_t radia_CND; // Distance between CND Trajectory and CND hit
 
   Int_t TrackNDF; //Number of degrees of freedom in CD track
 
   Int_t paddleNo; //Arbitrary index to permit plotting by CTOF paddle
 
   Double_t x_CD, y_CD, z_CD; // Central Tracker trajectory x,y,z positions
-  Double_t x_CND, y_CND, z_CND; // Central Detector x,y,z hit positions
+  Double_t x_CND, y_CND, z_CND; // Central Detector x,y,z trajectory positions
+  Double_t x_CNDt, y_CNDt, z_CNDt; // Central Detector x,y,z hit positions
   Double_t trackMom;  //Momentum of CD track
   Double_t trackBeta;  //beta of CD track
   Double_t trackBetaCalc;  //calculated beta of CD track
@@ -531,22 +535,41 @@ auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi
 		  
 		  h_time2->Fill(trackTime);
 		  
-		  //CND hits?
-		  if(p->sci(CND)->getDetector()==3){
-		    x_CND = p->sci(CND)->getX();
-		    y_CND = p->sci(CND)->getY();
-		    z_CND = p->sci(CND)->getZ();
-		  }
-		  
+// 		  //CND hits?
+// //		  if(p->traj(CND,1)->getDetector()==3 && p->traj(CND,1)->getLayer()==1){
+// 		  //if(p->sci(CND)->getDetector()==3){
+// 		  if(p->traj(CND,1)->getDetector()==3){
+
+// 		    x_CND = p->traj(CND,1)->getX();
+// 		    y_CND = p->traj(CND,1)->getY();
+// 		    z_CND = p->traj(CND,1)->getZ();
+
+
+// 		    if(p->sci(CND)->getEnergy()>0){
+// 		      h_path_CTOF_CND->Fill(p->sci(CTOF)->getPath());
+// 		      x_CNDt = p->sci(CND)->getX();
+// 		      y_CNDt = p->sci(CND)->getY();
+// 		      z_CNDt = p->sci(CND)->getZ();
+		      
+// 		      radia_CND = sqrt(pow(x_CND-x_CNDt,2) + pow(y_CND-y_CNDt,2) + pow(z_CND-z_CNDt,2));
+// 		      h_radia_CND->Fill(radia_CND);
+// 		    }
+// 		  }
 		  
 		  //std::cout << "something " << trackMom << std::endl;
 		  //CTOF,1 is inner layer, 2 middle, 3 outer
 		  
 		  if(p->traj(CTOF,1)->getDetector()==4 && p->traj(CTOF,1)->getLayer()==1){
 		    // Getting the x-, y- and z- co-ordinates from CVT, i.e the track
+		    //at CTOF
 		    x_CD =  p->traj(CTOF, 1)->getX();
 		    y_CD =  p->traj(CTOF, 1)->getY();
 		    z_CD = p->traj(CTOF, 1)->getZ();
+		    //at CND
+		    x_CND = p->traj(CND,1)->getX();
+		    y_CND = p->traj(CND,1)->getY();
+		    z_CND = p->traj(CND,1)->getZ();
+
 
 		    //first order ``Fiducial'' cut, -25 < z_CD < 30 cm
 		    if((z_CD < -25) || (z_CD > 30)){
@@ -560,29 +583,38 @@ auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi
 		      y_CTOF =  p->sci(CTOF)->getY();
 		      z_CTOF =  p->sci(CTOF)->getZ();
 		      
-		      // Distance between 'track' (probably CVT) and CTOF co-ordinates
+		      // Distance between 'track' at CTOF and CTOF scintillator hit co-ordinates
 		      radia_residual = sqrt(pow(x_CD-x_CTOF,2) + pow(y_CD-y_CTOF,2) + pow(z_CD-z_CTOF,2));
 		      h_radia_residual_CD->Fill(radia_residual); //do we want to cut on this?
 		      
 		      if(radia_residual>6) continue;
 		      
-		      // Distance between CND and CTOF co-ordinates
-		      //----THIS!!!!----
-		      //reappropriate as the distance between the etrapolated track at the CND and the CND hit position, but also look at the current distribution, possibly after a cut on the new one
-		      radia_CTOF_CND = sqrt(pow(x_CND-x_CTOF,2) + pow(y_CND-y_CTOF,2) + pow(z_CND-z_CTOF,2));
+		      // Radial distance between track at CND and track at CTOF
+		      radia_CTOF_CND = sqrt(pow(x_CND-x_CD,2) + pow(y_CND-y_CD,2) + pow(z_CND-z_CD,2));
 		      h_radia_CTOF_CND->Fill(radia_CTOF_CND);
 
 		      //if(radia_CTOF_CND>30) continue;
-		      if(radia_CTOF_CND<27) continue;
-		      
-		      h_path_CTOF_CND->Fill((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath()));
-
-		      //if((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath())>33) continue;
-
-		      
-		      //std::cout << ((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath())) <<std::endl;
+		      //if(radia_CTOF_CND<27) continue;
+		      //if(p->sci(CND)->getEnergy()>0){
+			//h_path_CTOF_CND->Fill((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath()));
+			//////h_path_CTOF_CND->Fill(p->sci(CTOF)->getPath());
+			//if((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath())>33) continue;
+			
+			//std::cout << ((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath())) <<std::endl;
+		      //}
 		      
 		    }
+
+		    //std::cout << p->sci(3)->getEnergy() << std::endl;
+		    //if(p->sci(CND)->getEnergy()>0){
+		      h_path_CTOF_CND->Fill(p->sci(CND)->getPath());
+		      x_CNDt = p->sci(CND)->getX();
+		      y_CNDt = p->sci(CND)->getY();
+		      z_CNDt = p->sci(CND)->getZ();
+		      
+		      radia_CND = sqrt(pow(x_CND-x_CNDt,2) + pow(y_CND-y_CNDt,2) + pow(z_CND-z_CNDt,2));
+		      h_radia_CND->Fill(radia_CND);
+		    //}
 		    
 		    
 // 		h_Scint_XY[0]->Fill(x_CTOF,y_CTOF);
