@@ -137,6 +137,10 @@ Double_t DeltaP, DeltaTheta, DeltaPhi;
   TH2F *h_Trk_CD_NDF[2][10]; // Trajectories from Central Tracker with energy deposited in CND
   TH2F *h_Eff_CD_NDF[2][10]; // Tracks divided by Trajectories
 
+  TH2F *h_Traj_CD_NDF_paddle[2][10]; // Trajectories from Central Tracker
+  TH2F *h_Trk_CD_NDF_paddle[2][10]; // Trajectories from Central Tracker with energy deposited in CND
+  TH2F *h_Eff_CD_NDF_paddle[2][10]; // Tracks divided by Trajectories
+
   TH1F *h_Trk_NDF_CD[2]; // Trajectories from Central Tracker
 
 // 2 pi event histograms
@@ -203,10 +207,12 @@ auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi
       h_Traj_CD_NDF[i_charge][i_NDF]->SetTitle(Form("Trajectories CTOF Charge %d NDF %d",(2*i_charge-1),i_NDF));
       h_Trk_CD_NDF[i_charge][i_NDF]->SetTitle(Form("Tracks CTOF Charge %d NDF %d",(2*i_charge-1),i_NDF));
 
-      //old binning
-      //      h_Traj_CD_NDF[i_charge][i_NDF] =  new TH2F(Form("h_TrajCD_Charge_%d_NDF_%d",(2*i_charge-1),i_NDF),"", 160,-80,80, 200, -200, 200); // Trajectories from Central Tracker
-      //      h_Trk_CD_NDF[i_charge][i_NDF] =  new TH2F(Form("h_TracksCD_Charge_%d_NDF_%d",(2*i_charge-1),i_NDF),"", 160,-80,80, 200, -200, 200); // Trajectories from Central Tracker
-      //h_Eff_CD_NDF[i_charge][i_NDF]; // Tracks divided by Trajectories
+      h_Traj_CD_NDF_paddle[i_charge][i_NDF] =  new TH2F(Form("h_TrajCDPaddle_Charge_%d_NDF_%d",(2*i_charge-1),i_NDF),"", 70,-70,70, 50, -1, 49); // Trajectories from Central Tracker
+      h_Trk_CD_NDF_paddle[i_charge][i_NDF] =  new TH2F(Form("h_TracksCDPaddle_Charge_%d_NDF_%d",(2*i_charge-1),i_NDF),"", 70,-70,70, 50, -1, 49); // Trajectories from Central Tracker
+
+      h_Traj_CD_NDF_paddle[i_charge][i_NDF]->SetTitle(Form("Trajectories CTOF Charge %d NDF %d",(2*i_charge-1),i_NDF));
+      h_Trk_CD_NDF_paddle[i_charge][i_NDF]->SetTitle(Form("Tracks CTOF Charge %d NDF %d",(2*i_charge-1),i_NDF));
+
     }
 
   }
@@ -654,11 +660,13 @@ auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi
 
 		      
 		      h_Traj_CD_NDF[1][0]->Fill(z_CD, alpha_CD);
+		      h_Traj_CD_NDF_paddle[1][0]->Fill(z_CD, paddleNo);
 		      //h_Traj_CD_NDF[1][TrackNDF]->Fill(z_CD, alpha_CD);
 		      
 		      for(int ii=1;ii<10;ii++){
 			if(TrackNDF>=ii){
 			  h_Traj_CD_NDF[1][ii]->Fill(z_CD, alpha_CD);
+			  h_Traj_CD_NDF_paddle[1][ii]->Fill(z_CD, paddleNo);
 			}
 		      }
 		      
@@ -670,12 +678,14 @@ auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi
 		      //h_Traj_CD[0]->Fill(z_CTOF, alpha_CTOF);       
 		      
 		      h_Traj_CD_NDF[0][0]->Fill(z_CD, alpha_CD);           
+		      h_Traj_CD_NDF_paddle[0][0]->Fill(z_CD, paddleNo);           
 		      
 		      //h_Traj_CD_NDF[0][TrackNDF]->Fill(z_CD, alpha_CD);
 		      
 		      for(int ii=1;ii<10;ii++){
 			if(TrackNDF>=ii){
 			  h_Traj_CD_NDF[0][ii]->Fill(z_CD, alpha_CD);
+			  h_Traj_CD_NDF_paddle[0][ii]->Fill(z_CD, paddleNo);
 			}
 		      }
 		      
@@ -696,12 +706,14 @@ auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi
 			h_Trk_CD_paddle[1]->Fill(z_CTOF, paddleNo);
 			
 			h_Trk_CD_NDF[1][0]->Fill(z_CD, alpha_CD);
+			h_Trk_CD_NDF_paddle[1][0]->Fill(z_CD, paddleNo);
 			
 			//h_Trk_CD_NDF[1][TrackNDF]->Fill(z_CD, alpha_CD);
 			
 			for(int ii=1;ii<10;ii++){
 			  if(TrackNDF>=ii){
 			    h_Trk_CD_NDF[1][ii]->Fill(z_CD, alpha_CD);
+			    h_Trk_CD_NDF_paddle[1][ii]->Fill(z_CD, paddleNo);
 			  }
 			}
 			
@@ -713,11 +725,13 @@ auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi
 			//h_Trk_CD[0]->Fill(z_CTOF, alpha_CTOF);
 			
 			h_Trk_CD_NDF[0][0]->Fill(z_CD, alpha_CD);
+			h_Trk_CD_NDF_paddle[0][0]->Fill(z_CD, paddleNo);
 			
 			//h_Trk_CD_NDF[0][TrackNDF]->Fill(z_CD, alpha_CD);
 			for(int ii=1;ii<10;ii++){
 			  if(TrackNDF>=ii){
 			    h_Trk_CD_NDF[0][ii]->Fill(z_CD, alpha_CD);
+			    h_Trk_CD_NDF_paddle[0][ii]->Fill(z_CD, paddleNo);
 			  }
 			}
 		      }
@@ -751,6 +765,10 @@ auto* h_pimi_thetaPhi=new TH2D("pimi_thetaPhi","#theta versus #phi, #pi^{-};#phi
       h_Eff_CD_NDF[i_charge][i_NDF] = (TH2F*)h_Trk_CD_NDF[i_charge][i_NDF]->Clone(Form("Efficiency_%d_NDF_%d",i_charge,i_NDF));
       h_Eff_CD_NDF[i_charge][i_NDF]->Divide(h_Traj_CD_NDF[i_charge][i_NDF]);
       h_Eff_CD_NDF[i_charge][i_NDF]->SetTitle(Form("Efficiency %d NDF %d",(2*i_charge-1),i_NDF));
+
+      h_Eff_CD_NDF_paddle[i_charge][i_NDF] = (TH2F*)h_Trk_CD_NDF_paddle[i_charge][i_NDF]->Clone(Form("Efficiency2_%d_NDF_%d",i_charge,i_NDF));
+      h_Eff_CD_NDF_paddle[i_charge][i_NDF]->Divide(h_Traj_CD_NDF_paddle[i_charge][i_NDF]);
+      h_Eff_CD_NDF_paddle[i_charge][i_NDF]->SetTitle(Form("Efficiency2 %d NDF %d",(2*i_charge-1),i_NDF));
     }
   }
 
