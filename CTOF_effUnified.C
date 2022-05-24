@@ -856,17 +856,17 @@ void CTOF_eff(TString inFileName){
     for(Int_t i_topology=0;i_topology<4;i_topology++){
       h_Eff_CD[i_charge][i_topology] = (TH2F*)h_Trk_CD[i_charge][i_topology]->Clone(Form("Efficiency_%d_%d",i_charge,i_topology));
 
-      h_Eff_CD[i_charge][i_topology]->Divide(h_Traj_CD[i_charge][i_topology]);
+      //h_Eff_CD[i_charge][i_topology]->Divide(h_Traj_CD[i_charge][i_topology]);
     
     
       for(Int_t i_NDF=0;i_NDF<10;i_NDF++){
 	h_Eff_CD_NDF[i_charge][i_NDF][i_topology] = (TH2F*)h_Trk_CD_NDF[i_charge][i_NDF][i_topology]->Clone(Form("Efficiency_%d_NDF_%d_topology_%d",i_charge,i_NDF,i_topology));
-	h_Eff_CD_NDF[i_charge][i_NDF][i_topology]->Divide(h_Traj_CD_NDF[i_charge][i_NDF][i_topology]);
+	//h_Eff_CD_NDF[i_charge][i_NDF][i_topology]->Divide(h_Traj_CD_NDF[i_charge][i_NDF][i_topology]);
 	h_Eff_CD_NDF[i_charge][i_NDF][i_topology]->SetTitle(Form("Efficiency %d NDF %d Topology %d",(2*i_charge-1),i_NDF,i_topology));
 
-      h_Eff_CD_NDF_paddle[i_charge][i_NDF][i_topology] = (TH2F*)h_Trk_CD_NDF_paddle[i_charge][i_NDF][i_topology]->Clone(Form("Efficiency2_%d_NDF_%d_topology_%d",i_charge,i_NDF,i_topology));
-      h_Eff_CD_NDF_paddle[i_charge][i_NDF][i_topology]->Divide(h_Traj_CD_NDF_paddle[i_charge][i_NDF][i_topology]);
-      h_Eff_CD_NDF_paddle[i_charge][i_NDF][i_topology]->SetTitle(Form("Efficiency2 %d NDF %d Topology %d",(2*i_charge-1),i_NDF,i_topology));
+	h_Eff_CD_NDF_paddle[i_charge][i_NDF][i_topology] = (TH2F*)h_Trk_CD_NDF_paddle[i_charge][i_NDF][i_topology]->Clone(Form("Efficiency2_%d_NDF_%d_topology_%d",i_charge,i_NDF,i_topology));
+	//h_Eff_CD_NDF_paddle[i_charge][i_NDF][i_topology]->Divide(h_Traj_CD_NDF_paddle[i_charge][i_NDF][i_topology]);
+	h_Eff_CD_NDF_paddle[i_charge][i_NDF][i_topology]->SetTitle(Form("Efficiency2 %d NDF %d Topology %d",(2*i_charge-1),i_NDF,i_topology));
       }
     }
   }
