@@ -81,35 +81,35 @@ Int_t Status, Calorimeter_Hits; // Status is used to find out if there is a ECAL
 Int_t StatusCD, Cal_Hits; // StatusCD is used to find out if there is a CND hit
 Int_t StatusTrack;
 
-TH1D *h_z_vertex[3];
-TH1D *h_z_vertex_CD[3];
-TH1D *h_beta[3];
-TH1D *h_beta2[3];
-TH2D *h_beta_mom[3];
-TH2D *h_beta_mom_cut[3];
-TH2D *h_beta_mom_cut2[3];
+TH1D *h_z_vertex[4];
+TH1D *h_z_vertex_CD[4];
+TH1D *h_beta[4];
+TH1D *h_beta2[4];
+TH2D *h_beta_mom[4];
+TH2D *h_beta_mom_cut[4];
+TH2D *h_beta_mom_cut2[4];
 
-TH1D *h_Wvar[3];
+TH1D *h_Wvar[4];
 
-TH1D *h_trackPath[3];
+TH1D *h_trackPath[4];
 
-TH1D *h_CTOF_E[3];
+TH1D *h_CTOF_E[4];
 
-TH1D *h_verttime[3];
-TH1D *h_time[3];
-TH1D *h_time2[3];
+TH1D *h_verttime[4];
+TH1D *h_time[4];
+TH1D *h_time2[4];
 
 // Distance between trajectory point and scintillator hit
-TH1D* h_radia_residual_CD[3];
-TH1D* h_radia_CTOF_CND[3];
-TH1D* h_path_CTOF_CND[3];
+TH1D* h_radia_residual_CD[4];
+TH1D* h_radia_CTOF_CND[4];
+TH1D* h_path_CTOF_CND[4];
 
-TH1D* h_momentum_CD[3];
-TH1D* h_momentum_CD_cut[3];
+TH1D* h_momentum_CD[4];
+TH1D* h_momentum_CD_cut[4];
 
-TH2F *h_Traj_CD[2][3]; // Trajectories from Central Tracker
-TH2F *h_Trk_CD[2][3]; // Trajectories from Central Tracker with energy deposited in CND
-TH2F *h_Eff_CD[2][3]; // Tracks divided by Trajectories
+TH2F *h_Traj_CD[2][4]; // Trajectories from Central Tracker
+TH2F *h_Trk_CD[2][4]; // Trajectories from Central Tracker with energy deposited in CND
+TH2F *h_Eff_CD[2][4]; // Tracks divided by Trajectories
 
 //paddle version
 TH2F *h_Traj_CD_paddle[2]; // Trajectories from Central Tracker
@@ -123,13 +123,9 @@ TH2F *h_CND_XY[2];  //X,Y scintillator hit positions
 TH3F *h_CND_XYZ[2]; //X,Y,Z scintillator hit positions
 
 //Track NDF dependent histos
-TH2F *h_Traj_CD_NDF[2][10][3]; // Trajectories from Central Tracker
-TH2F *h_Trk_CD_NDF[2][10][3]; // Trajectories from Central Tracker with energy deposited in CND
-TH2F *h_Eff_CD_NDF[2][10][3]; // Tracks divided by Trajectories
-
-TH2F *h_Traj_CD_NDF_paddle[2][10][3]; // Trajectories from Central Tracker
-TH2F *h_Trk_CD_NDF_paddle[2][10][3]; // Trajectories from Central Tracker with energy deposited in CND
-TH2F *h_Eff_CD_NDF_paddle[2][10][3]; // Tracks divided by Trajectories
+TH2F *h_Traj_CD_NDF[2][10][4]; // Trajectories from Central Tracker
+TH2F *h_Trk_CD_NDF[2][10][4]; // Trajectories from Central Tracker with energy deposited in CND
+TH2F *h_Eff_CD_NDF[2][10][4]; // Tracks divided by Trajectories
 
 TH1F *h_Trk_NDF_CD[2]; // Trajectories from Central Tracker
 
@@ -141,292 +137,295 @@ void SetLorentzVector(TLorentzVector &p4,clas12::region_part_ptr rp){
 }
 
 void SecondLoop(int index, vector<region_part_ptr> particles){
-  
-  //  cout << "Test #" << index << endl;
-  
-  //--------------move to function, called by each instance
-  //second loop
-  //Set the particle index to 0 and loop through the particles
-  int pindex=0;
-  //std::cout << "event" << std::endl;
-  for(auto& p : particles){
+
+//  cout << "Test #" << index << endl;
+
+	//--------------move to function, called by each instance
+	//second loop
+	//Set the particle index to 0 and loop through the particles
+	int pindex=0;
+	//std::cout << "event" << std::endl;
+	for(auto& p : particles){
 	  
-    //get information from the different detectors
-    switch(p->getRegion()) {
-      
-      //add a skip of electrons in FT
-    case FD:
-      pindex++;
-      
-    case CD :
-      
-      //std::cout << p->par()->getCharge() << std::endl;
-      
-      //std::cout << "central detector" << endl;
-      // Increase the particle index with each loop of the particles
-      pindex++;
-      
-      //if(pindex==1){
-      //std::cout << "first CD particle" << p->par()->getPid() << std::endl;
-      //}
-      
-      //Ignore the first particle (trigger, if it falls in the CTOF) and any neutrals
-      if (pindex==1 || p->par()->getCharge()==0) continue;
-      //just ignore neutrals
-      //if (p->par()->getCharge()==0) continue;
-      
-      //if(p->par()->getPid() ==0) continue;
-      
-      //runno = c12.runconfig()->getRun(); // Getting the run number
-      StatusCD = p->par()->getStatus(); // Getting the status
-      
-      // Getting the hits in CND
-      Cal_Hits = (StatusCD / 4000);//%10;
-      //track status
-      StatusTrack = ((StatusCD%4000)%100)/10; //Scintillator hits i.e. CND hits
-      //std::cout<< "Cal_Hits = " << Cal_Hits << " Scintillator Hits = " << StatusTrack <<std::endl;
-      
-      //beta, timing?
-      trackBeta = p->par()->getBeta();
-      trackBetaCalc = (p->sci(CTOF)->getPath()/((p->sci(CTOF)->getTime())-(p->par()->getVt())))/29.9792;
-      h_beta[index-1]->Fill(trackBetaCalc);
-      
-      stTime = p->par()->getVt();
-      h_verttime[index-1]->Fill(stTime);
-      trackTime = p->sci(CTOF)->getTime();
-      h_time[index-1]->Fill(trackTime);
-      h_trackPath[index-1]->Fill(p->sci(CTOF)->getPath());
-      
-      // Checking the z vertex before applying a cut
-      h_z_vertex_CD[index-1]->Fill(p->par()->getVz());
-      if(p->par()->getVz() > 2 || p->par()->getVz() < -9)continue;  
-      
-      
-      //Compute track momentum from components
-      trk_px = p->par()->getPx();
-      trk_py = p->par()->getPy();
-      trk_pz = p->par()->getPz();
-      trackMom = TMath::Sqrt((trk_px*trk_px)+(trk_py*trk_py)+(trk_pz*trk_pz));
-      
-      h_beta2[index-1]->Fill(trackBetaCalc);	  
-      h_beta_mom[index-1]->Fill(trackMom,trackBetaCalc);
-      
-      //Fill Histogram with and without cut
-      h_momentum_CD[index-1]->Fill(trackMom);
-      //if(trackMom<0.3) continue;  //cut at particle momentum less than 300 MeV
-      //if(trackMom<0.4) continue;  //cut at particle momentum less than 400 MeV, allowing particle to reach CND
-      h_momentum_CD_cut[index-1]->Fill(trackMom);
-      
-      //if((trackBetaCalc<0.2)||(trackBetaCalc>1.2)) continue;
-      //if(trackBeta<0.2) continue;
-      //if(trackBeta>1.2) continue;
-      
-      h_CTOF_E[index-1]->Fill(p->sci(CTOF)->getEnergy());
-      
-      //Skips any particle with no CD status
-      if(Cal_Hits!=0){
-	//Skips any particle with no CD status and no CND hit
-	//if((Cal_Hits!=0)&&(StatusTrack!=0)){
-	
-	h_beta_mom_cut[index-1]->Fill(trackMom,trackBeta);
-	h_beta_mom_cut2[index-1]->Fill(trackMom,trackBetaCalc);
-	
-	h_Wvar[index-1]->Fill(W_var);
-	
-	//if(W_var < 1) continue;
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//CTOF
-	
-	// Here you can put cuts on the particles you are looking at
-	
-	if((p->trk(CVT)->getDetector() ==5)&&(p->trk(CVT)->getNDF() >=0)){
-	  
-	  TrackNDF = (Int_t)(p->trk(CVT)->getNDF());
-	  //std::cout << "Track NDF = "<< TrackNDF << endl;
-	  
-	  if(TrackNDF < 2) continue;  //skip events with track NDF less than 2
-	  
-	  if(p->par()->getCharge()>0){//positive tracks
-	    h_Trk_NDF_CD[1]->Fill(p->trk(CVT)->getNDF());
-	  }
-	  else if(p->par()->getCharge()<0){//negative tracks
-	    h_Trk_NDF_CD[0]->Fill(p->trk(CVT)->getNDF());
-	  }
-	  else{
-	    continue;  //skip neutrals
-	  }
-	  //}
-	  
-	  h_time2[index-1]->Fill(trackTime);
-	  
-	  //CND hits?
-	  if(p->sci(CND)->getDetector()==3){
-	    x_CND = p->sci(CND)->getX();
-	    y_CND = p->sci(CND)->getY();
-	    z_CND = p->sci(CND)->getZ();
-	  }
-	  
-	  
-	  //std::cout << "something " << trackMom << std::endl;
-	  //CTOF,1 is inner layer, 2 middle, 3 outer
-	  
-	  if(p->traj(CTOF,1)->getDetector()==4 && p->traj(CTOF,1)->getLayer()==1){
-	    // Getting the x-, y- and z- co-ordinates from CVT, i.e the track
-	    x_CD =  p->traj(CTOF, 1)->getX();
-	    y_CD =  p->traj(CTOF, 1)->getY();
-	    z_CD = p->traj(CTOF, 1)->getZ();
+	  //get information from the different detectors
+	  switch(p->getRegion()) {
+	    
+	    //add a skip of electrons in FT
+	  case FD:
+	    pindex++;
+	    
+	  case CD :
+	    
+	    //std::cout << p->par()->getCharge() << std::endl;
+	    
+	    //std::cout << "central detector" << endl;
+	    // Increase the particle index with each loop of the particles
+	    pindex++;
+	    
+	    //if(pindex==1){
+	    //std::cout << "first CD particle" << p->par()->getPid() << std::endl;
+	    //}
+	    
+	    //Ignore the first particle (trigger, if it falls in the CTOF) and any neutrals
+	    if (pindex==1 || p->par()->getCharge()==0) continue;
+	    //just ignore neutrals
+	    //if (p->par()->getCharge()==0) continue;
+	    
+	    //if(p->par()->getPid() ==0) continue;
+	    
+	    //runno = c12.runconfig()->getRun(); // Getting the run number
+	    StatusCD = p->par()->getStatus(); // Getting the status
+	    
+	    // Getting the hits in CND
+	    Cal_Hits = (StatusCD / 4000);//%10;
+	    //track status
+	    StatusTrack = ((StatusCD%4000)%100)/10; //Scintillator hits i.e. CND hits
+	    //std::cout<< "Cal_Hits = " << Cal_Hits << " Scintillator Hits = " << StatusTrack <<std::endl;
+	    
+	    //beta, timing?
+	    trackBeta = p->par()->getBeta();
+	    trackBetaCalc = (p->sci(CTOF)->getPath()/((p->sci(CTOF)->getTime())-(p->par()->getVt())))/29.9792;
+	    h_beta[index-1]->Fill(trackBetaCalc);
+	    
+	    stTime = p->par()->getVt();
+	    h_verttime[index-1]->Fill(stTime);
+	    trackTime = p->sci(CTOF)->getTime();
+	    h_time[index-1]->Fill(trackTime);
+	    h_trackPath[index-1]->Fill(p->sci(CTOF)->getPath());
+	    
+	    // Checking the z vertex before applying a cut
+	    h_z_vertex_CD[index-1]->Fill(p->par()->getVz());
+	    if(p->par()->getVz() > 2 || p->par()->getVz() < -9)continue;  
 	    
 	    
-	    // 		    //first order ``Fiducial'' cut, -25 < z_CD < 30 cm
-	    // 		    if((z_CD < -25) || (z_CD > 30)){
-	    // 		      continue;
-	    // 		    }
+	    //Compute track momentum from components
+	    trk_px = p->par()->getPx();
+	    trk_py = p->par()->getPy();
+	    trk_pz = p->par()->getPz();
+	    trackMom = TMath::Sqrt((trk_px*trk_px)+(trk_py*trk_py)+(trk_pz*trk_pz));
 	    
-	    // Getting x-, y- and z- co-ordinates from CTOF hit, i.e. the scintillator hit
-	    if(p->sci(CTOF)->getEnergy()>0){
-	      x_CTOF =  p->sci(CTOF)->getX();
-	      y_CTOF =  p->sci(CTOF)->getY();
-	      z_CTOF =  p->sci(CTOF)->getZ();
-	      
-	      // Distance between 'track' (probably CVT) and CTOF co-ordinates
-	      radia_residual = sqrt(pow(x_CD-x_CTOF,2) + pow(y_CD-y_CTOF,2) + pow(z_CD-z_CTOF,2));
-	      h_radia_residual_CD[index-1]->Fill(radia_residual); //do we want to cut on this?
-	      
-	      if(radia_residual>6) continue;
-	      
-	      // Distance between CND and CTOF co-ordinates
-	      radia_CTOF_CND = sqrt(pow(x_CND-x_CTOF,2) + pow(y_CND-y_CTOF,2) + pow(z_CND-z_CTOF,2));
-	      h_radia_CTOF_CND[index-1]->Fill(radia_CTOF_CND);
-	      
-	      if(radia_CTOF_CND>30) continue;
-	      
-	      h_path_CTOF_CND[index-1]->Fill((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath()));
-	      
-	      //if((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath())>33) continue;
-	      
-	      //std::cout << ((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath())) <<std::endl;
-	      
+	    h_beta2[index-1]->Fill(trackBetaCalc);	  
+	    h_beta_mom[index-1]->Fill(trackMom,trackBetaCalc);
+	    
+	    //Fill Histogram with and without cut
+	    h_momentum_CD[index-1]->Fill(trackMom);
+
+	    if(index == 4){ //single track
+	      //if(trackMom<0.3) continue;  //cut at particle momentum less than 300 MeV
+	      if(trackMom<0.4) continue;  //cut at particle momentum less than 400 MeV, allowing particle to reach CND
 	    }
+
+	    h_momentum_CD_cut[index-1]->Fill(trackMom);
 	    
+	    //if((trackBetaCalc<0.2)||(trackBetaCalc>1.2)) continue;
+	    //if(trackBeta<0.2) continue;
+	    //if(trackBeta>1.2) continue;
 	    
-	    // 		h_Scint_XY[0]->Fill(x_CTOF,y_CTOF);
-	    // 		h_Scint_XYZ[0]->Fill(x_CTOF,y_CTOF,z_CTOF);
+	    h_CTOF_E[index-1]->Fill(p->sci(CTOF)->getEnergy());
 	    
-	    // 		h_Scint_XY[1]->Fill(x_CD,y_CD);
-	    // 		h_Scint_XYZ[1]->Fill(x_CD,y_CD,z_CD);
-	    
-	    //lets start by converting x,y,z to r,phi,z and visualising the hits
-	    //r_CTOF =  sqrt(pow(x_CTOF,2) + pow(y_CTOF,2));
-	    //phi_CTOF = TMath::RadToDeg()*atan2(y_CTOF,x_CTOF);
-	    ////z_CTOF = z_CTOF;		
-	    
-	    // Calculating d, distance to hit from (0,0) to (x,y)
-	    d_CD = sqrt(pow(x_CD,2) + pow(y_CD,2));   //this is r
-	    
-	    // Calculating alpha, angle from (0,0) to hit, this is phi
-	    //alpha_CD = TMath::RadToDeg()*atan(y_CD/x_CD);  //Check, and fix if necessary, the use of atan, replacing with atan2(y_CD,x_CD)
-	    alpha_CD = TMath::RadToDeg()*atan2(y_CD,x_CD);   //Replacing atan(y/x) with atan2(y_CD,x_CD)
-	    alpha_CTOF = TMath::RadToDeg()*atan2(y_CTOF,x_CTOF);
-	    
-	    //attempt to calculate a "paddle index"
-	    paddleNo = (int)(floor((alpha_CD+180)/7.5));
-	    
-	    //z_CD = z_CD;
-	    
-	    // Positive particles
-	    if(p->par()->getCharge()>0){
-	      ////h_Traj_CD[1]->Fill(i,L_det_1a, L_Perp_1a);
-	      if(p->par()->getPid()==2212){
-		h_Traj_CD[1][index-1]->Fill(z_CTOF, alpha_CTOF);
-	      }
-	      if(p->par()->getPid()==211){
-		h_Traj_CD[0][index-1]->Fill(z_CTOF, alpha_CTOF);
-	      }
-	      
-	      h_Traj_CD_NDF[1][0][index-1]->Fill(z_CD, alpha_CD);
-	      h_Traj_CD_NDF_paddle[1][0][index-1]->Fill(z_CD, paddleNo);
-	      //h_Traj_CD_NDF[1][TrackNDF]->Fill(z_CD, alpha_CD);
-	      
-	      for(int ii=1;ii<10;ii++){
-		if(TrackNDF>=ii){
-		  h_Traj_CD_NDF[1][ii][index-1]->Fill(z_CD, alpha_CD);
-		  h_Traj_CD_NDF_paddle[1][ii][index-1]->Fill(z_CD, paddleNo);
-		}
-	      }
-	      
-	    }
-	    
-	    // Negative particles
-	    else if(p->par()->getCharge()<0){
-	      ////h_Traj_CD[0]->Fill(i,L_det_1a, L_Perp_1a);
-	      //h_Traj_CD[0]->Fill(z_CTOF, alpha_CTOF);       
-	      
-	      h_Traj_CD_NDF[0][0][index-1]->Fill(z_CD, alpha_CD);           
-	      h_Traj_CD_NDF_paddle[0][0][index-1]->Fill(z_CD, paddleNo);
-	      //h_Traj_CD_NDF[0][TrackNDF]->Fill(z_CD, alpha_CD);
-	      
-	      for(int ii=1;ii<10;ii++){
-		if(TrackNDF>=ii){
-		  h_Traj_CD_NDF[0][ii][index-1]->Fill(z_CD, alpha_CD);
-		  h_Traj_CD_NDF_paddle[0][ii][index-1]->Fill(z_CD, paddleNo);
-		}
-	      }  
-	    }
-	    
-	    // Check if there is energy deposited on the scintillator
-	    if(p->sci(CTOF)->getEnergy()>0){
-	      // Positive particles
-	      if(p->par()->getCharge()>0){
-		////h_Trk_CD[1]->Fill(i,L_det_1a, L_Perp_1a);
-		if(p->par()->getPid()==2212){
-		  h_Trk_CD[1][index-1]->Fill(z_CTOF, alpha_CTOF);
-		}
-		if(p->par()->getPid()==211){
-		  h_Trk_CD[0][index-1]->Fill(z_CTOF, alpha_CTOF);
-		}
-		//h_Trk_CD[1]->Fill(z_CTOF, alpha_CTOF);
-		h_Trk_CD_paddle[1]->Fill(z_CTOF, paddleNo);
+	    //Skips any particle with no CD status
+	    if(Cal_Hits!=0){
+
+            //Skips any particle with no CD status and no CND hit
+	    //if((Cal_Hits!=0)&&(StatusTrack!=0)){
+
+	      //Skips any single track event with no CND hit
+	      if((index ==4)&&(StatusTrack!=0)){
+
+		h_beta_mom_cut[index-1]->Fill(trackMom,trackBeta);
+		h_beta_mom_cut2[index-1]->Fill(trackMom,trackBetaCalc);
 		
-		h_Trk_CD_NDF[1][0][index-1]->Fill(z_CD, alpha_CD);
-		h_Trk_CD_NDF_paddle[1][0][index-1]->Fill(z_CD, paddleNo);
+		h_Wvar[index-1]->Fill(W_var);
 		
-		//h_Trk_CD_NDF[1][TrackNDF]->Fill(z_CD, alpha_CD);
+		//if(W_var < 1) continue;
 		
-		for(int ii=1;ii<10;ii++){
-		  if(TrackNDF>=ii){
-		    h_Trk_CD_NDF[1][ii][index-1]->Fill(z_CD, alpha_CD);
-		    h_Trk_CD_NDF_paddle[1][ii][index-1]->Fill(z_CD, paddleNo);
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//CTOF
+		
+		// Here you can put cuts on the particles you are looking at
+		
+		if((p->trk(CVT)->getDetector() ==5)&&(p->trk(CVT)->getNDF() >=0)){
+		  
+		  TrackNDF = (Int_t)(p->trk(CVT)->getNDF());
+		  //std::cout << "Track NDF = "<< TrackNDF << endl;
+		  
+		  if(TrackNDF < 2) continue;  //skip events with track NDF less than 2
+		  
+		  if(p->par()->getCharge()>0){//positive tracks
+		    h_Trk_NDF_CD[1]->Fill(p->trk(CVT)->getNDF());
+		  }
+		  else if(p->par()->getCharge()<0){//negative tracks
+		    h_Trk_NDF_CD[0]->Fill(p->trk(CVT)->getNDF());
+		  }
+		  else{
+		    continue;  //skip neutrals
+		  }
+		  //}
+		  
+		  h_time2[index-1]->Fill(trackTime);
+		  
+		  //CND hits?
+		  if(p->sci(CND)->getDetector()==3){
+		    x_CND = p->sci(CND)->getX();
+		    y_CND = p->sci(CND)->getY();
+		    z_CND = p->sci(CND)->getZ();
+		  }
+		  
+		  
+		  //std::cout << "something " << trackMom << std::endl;
+		  //CTOF,1 is inner layer, 2 middle, 3 outer
+		  
+		  if(p->traj(CTOF,1)->getDetector()==4 && p->traj(CTOF,1)->getLayer()==1){
+		    // Getting the x-, y- and z- co-ordinates from CVT, i.e the track
+		    x_CD =  p->traj(CTOF, 1)->getX();
+		    y_CD =  p->traj(CTOF, 1)->getY();
+		    z_CD = p->traj(CTOF, 1)->getZ();
+		    
+		    
+		    // 		    //first order ``Fiducial'' cut, -25 < z_CD < 30 cm
+		    // 		    if((z_CD < -25) || (z_CD > 30)){
+		    // 		      continue;
+		    // 		    }
+		    
+		    // Getting x-, y- and z- co-ordinates from CTOF hit, i.e. the scintillator hit
+		    if(p->sci(CTOF)->getEnergy()>0){
+		      x_CTOF =  p->sci(CTOF)->getX();
+		      y_CTOF =  p->sci(CTOF)->getY();
+		      z_CTOF =  p->sci(CTOF)->getZ();
+		      
+		      // Distance between 'track' (probably CVT) and CTOF co-ordinates
+		      radia_residual = sqrt(pow(x_CD-x_CTOF,2) + pow(y_CD-y_CTOF,2) + pow(z_CD-z_CTOF,2));
+		      h_radia_residual_CD[index-1]->Fill(radia_residual); //do we want to cut on this?
+		      
+		      if(radia_residual>6) continue;
+		      
+		      // Distance between CND and CTOF co-ordinates
+		      radia_CTOF_CND = sqrt(pow(x_CND-x_CTOF,2) + pow(y_CND-y_CTOF,2) + pow(z_CND-z_CTOF,2));
+		      h_radia_CTOF_CND[index-1]->Fill(radia_CTOF_CND);
+		      
+		      //This cut is utterly meaningless on the 2pi study as we don't require a CND hit
+		      if(radia_CTOF_CND>30) continue;
+		      
+		      h_path_CTOF_CND[index-1]->Fill((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath()));
+		      
+		      //if((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath())>33) continue;
+		      
+		      //std::cout << ((p->sci(CTOF)->getPath())-(p->sci(CND)->getPath())) <<std::endl;
+		      
+		    }
+		    
+		    
+		    // 		h_Scint_XY[0]->Fill(x_CTOF,y_CTOF);
+		    // 		h_Scint_XYZ[0]->Fill(x_CTOF,y_CTOF,z_CTOF);
+		    
+		    // 		h_Scint_XY[1]->Fill(x_CD,y_CD);
+		    // 		h_Scint_XYZ[1]->Fill(x_CD,y_CD,z_CD);
+		    
+		    //lets start by converting x,y,z to r,phi,z and visualising the hits
+		    //r_CTOF =  sqrt(pow(x_CTOF,2) + pow(y_CTOF,2));
+		    //phi_CTOF = TMath::RadToDeg()*atan2(y_CTOF,x_CTOF);
+		    ////z_CTOF = z_CTOF;		
+		    
+		    // Calculating d, distance to hit from (0,0) to (x,y)
+		    d_CD = sqrt(pow(x_CD,2) + pow(y_CD,2));   //this is r
+		    
+		    // Calculating alpha, angle from (0,0) to hit, this is phi
+		    //alpha_CD = TMath::RadToDeg()*atan(y_CD/x_CD);  //Check, and fix if necessary, the use of atan, replacing with atan2(y_CD,x_CD)
+		    alpha_CD = TMath::RadToDeg()*atan2(y_CD,x_CD);   //Replacing atan(y/x) with atan2(y_CD,x_CD)
+		    alpha_CTOF = TMath::RadToDeg()*atan2(y_CTOF,x_CTOF);
+		    
+		    //attempt to calculate a "paddle index"
+		    paddleNo = (int)(floor((alpha_CD+180)/7.5));
+		    
+		    //z_CD = z_CD;
+		    
+		    // Positive particles
+		    if(p->par()->getCharge()>0){
+		      ////h_Traj_CD[1]->Fill(i,L_det_1a, L_Perp_1a);
+		      if(p->par()->getPid()==2212){
+			h_Traj_CD[1][index-1]->Fill(z_CTOF, alpha_CTOF);
+		      }
+		      if(p->par()->getPid()==211){
+			h_Traj_CD[0][index-1]->Fill(z_CTOF, alpha_CTOF);
+		      }
+		      
+		      h_Traj_CD_NDF[1][0][index-1]->Fill(z_CD, alpha_CD);
+		      //h_Traj_CD_NDF[1][TrackNDF]->Fill(z_CD, alpha_CD);
+		      
+		      for(int ii=1;ii<10;ii++){
+			if(TrackNDF>=ii){
+			  h_Traj_CD_NDF[1][ii][index-1]->Fill(z_CD, alpha_CD);
+			}
+		      }
+		      
+		    }
+		    
+		    // Negative particles
+		    else if(p->par()->getCharge()<0){
+		      ////h_Traj_CD[0]->Fill(i,L_det_1a, L_Perp_1a);
+		      //h_Traj_CD[0]->Fill(z_CTOF, alpha_CTOF);       
+		      
+		      h_Traj_CD_NDF[0][0][index-1]->Fill(z_CD, alpha_CD);           
+		      
+		      //h_Traj_CD_NDF[0][TrackNDF]->Fill(z_CD, alpha_CD);
+		      
+		      for(int ii=1;ii<10;ii++){
+			if(TrackNDF>=ii){
+			  h_Traj_CD_NDF[0][ii][index-1]->Fill(z_CD, alpha_CD);
+			}
+		      }  
+		    }
+		    
+		    // Check if there is energy deposited on the scintillator
+		    if(p->sci(CTOF)->getEnergy()>0){
+		      // Positive particles
+		      if(p->par()->getCharge()>0){
+			////h_Trk_CD[1]->Fill(i,L_det_1a, L_Perp_1a);
+			if(p->par()->getPid()==2212){
+			  h_Trk_CD[1][index-1]->Fill(z_CTOF, alpha_CTOF);
+			}
+			if(p->par()->getPid()==211){
+			  h_Trk_CD[0][index-1]->Fill(z_CTOF, alpha_CTOF);
+			}
+			//h_Trk_CD[1]->Fill(z_CTOF, alpha_CTOF);
+			h_Trk_CD_paddle[1]->Fill(z_CTOF, paddleNo);
+			
+			h_Trk_CD_NDF[1][0][index-1]->Fill(z_CD, alpha_CD);
+			
+			//h_Trk_CD_NDF[1][TrackNDF]->Fill(z_CD, alpha_CD);
+			
+			for(int ii=1;ii<10;ii++){
+			  if(TrackNDF>=ii){
+			    h_Trk_CD_NDF[1][ii][index-1]->Fill(z_CD, alpha_CD);
+			  }
+			}
+			
+		      }
+		      
+		      // Negative particles
+		      else if(p->par()->getCharge()<0){
+			////h_Trk_CD[0]->Fill(i,L_det_1a, L_Perp_1a);
+			//h_Trk_CD[0]->Fill(z_CTOF, alpha_CTOF);
+			
+			h_Trk_CD_NDF[0][0][index-1]->Fill(z_CD, alpha_CD);
+			
+			//h_Trk_CD_NDF[0][TrackNDF]->Fill(z_CD, alpha_CD);
+			for(int ii=1;ii<10;ii++){
+			  if(TrackNDF>=ii){
+			    h_Trk_CD_NDF[0][ii][index-1]->Fill(z_CD, alpha_CD);
+			  }
+			}
+		      }
+		      
+		    }
 		  }
 		}
-		
 	      }
-	      
-	      // Negative particles
-	      else if(p->par()->getCharge()<0){
-		////h_Trk_CD[0]->Fill(i,L_det_1a, L_Perp_1a);
-		//h_Trk_CD[0]->Fill(z_CTOF, alpha_CTOF);
-		
-		h_Trk_CD_NDF[0][0][index-1]->Fill(z_CD, alpha_CD);
-		h_Trk_CD_NDF_paddle[0][0][index-1]->Fill(z_CD, paddleNo);
-		//h_Trk_CD_NDF[0][TrackNDF]->Fill(z_CD, alpha_CD);
-		for(int ii=1;ii<10;ii++){
-		  if(TrackNDF>=ii){
-		    h_Trk_CD_NDF[0][ii][index-1]->Fill(z_CD, alpha_CD);
-		    h_Trk_CD_NDF_paddle[0][ii][index-1]->Fill(z_CD, paddleNo);
-		  }
-		}
-	      }
-	      
 	    }
-	  }
+	  }	  
 	}
-      }
-    }
-  }	  
-  //}
-  //---end second loop
-  
+	//---end second loop
+
 }
 
 
@@ -481,8 +480,9 @@ void CTOF_eff(TString inFileName){
   Int_t Bins = files->GetEntries();
   // Output file location and name
 
-  //TString outFileName( inFileName(0,inFileName.Length()-5) + "_eff.root"); //trim '.hipo' and add '.root' for output file name
-  TString outFileName("/u/home/sfegan/CTOF_output/" + inFileName(inFileName.Length()-17,inFileName.Length()-5) + "_unified_eff.root"); //trim '.hipo' and add '.root' for output file name
+  //TString outFileName("/u/home/sfegan/CTOF_output/" + inFileName(inFileName.Length()-17,inFileName.Length()-5) + "_eff.root"); //trim '.hipo' and add '.root' for output file name
+  TString outFileName("/home/stuart/CLAS/CTOF/Test/" + inFileName(inFileName.Length()-17,inFileName.Length()-5) + "_eff.root"); //trim '.hipo' and add '.root' for output file name
+  //TString outFileName(inFileName(0,inFileName.Length()-5) + "_eff.root"); //trim '.hipo' and add '.root' for output file name
 
   cout << outFileName << endl;
 
@@ -519,7 +519,7 @@ void CTOF_eff(TString inFileName){
   
  
   // Create histograms here
-  for(int i_topology=0;i_topology<3;i_topology++){
+  for(int i_topology=0;i_topology<4;i_topology++){
     
     h_z_vertex[i_topology] = new TH1D(Form("h_z_vertex_%d",i_topology),"z vertex",100,-15,15);
     h_z_vertex_CD[i_topology] = new TH1D(Form("h_z_vertex_CD_%d",i_topology),"z vertex (central detector)",100,-15,15);
@@ -585,14 +585,10 @@ void CTOF_eff(TString inFileName){
 	h_Traj_CD_NDF[i_charge][i_NDF][i_topology]->SetTitle(Form("Trajectories CTOF Charge %d NDF %d Topology %d",(2*i_charge-1),i_NDF,i_topology));
 	h_Trk_CD_NDF[i_charge][i_NDF][i_topology]->SetTitle(Form("Tracks CTOF Charge %d NDF %d Topology %d",(2*i_charge-1),i_NDF,i_topology));
 	
-
-      h_Traj_CD_NDF_paddle[i_charge][i_NDF][i_topology] =  new TH2F(Form("h_TrajCDPaddle_Charge_%d_NDF_%d_topology_%d",(2*i_charge-1),i_NDF,i_topology),"", 70,-70,70, 50, -1, 49); // Trajectories from Central Tracker
-      h_Trk_CD_NDF_paddle[i_charge][i_NDF][i_topology] =  new TH2F(Form("h_TracksCDPaddle_Charge_%d_NDF_%d_topology_%d",(2*i_charge-1),i_NDF,i_topology),"", 70,-70,70, 50, -1, 49); // Trajectories from Central Tracker
-
-      h_Traj_CD_NDF_paddle[i_charge][i_NDF][i_topology]->SetTitle(Form("Trajectories CTOF Charge %d NDF %d Topology %d",(2*i_charge-1),i_NDF,i_topology));
-      h_Trk_CD_NDF_paddle[i_charge][i_NDF][i_topology]->SetTitle(Form("Tracks CTOF Charge %d NDF %d Topology %d",(2*i_charge-1),i_NDF,i_topology));
-
-
+	//old binning
+	//      h_Traj_CD_NDF[i_charge][i_NDF] =  new TH2F(Form("h_TrajCD_Charge_%d_NDF_%d",(2*i_charge-1),i_NDF),"", 160,-80,80, 200, -200, 200); // Trajectories from Central Tracker
+	//      h_Trk_CD_NDF[i_charge][i_NDF] =  new TH2F(Form("h_TracksCD_Charge_%d_NDF_%d",(2*i_charge-1),i_NDF),"", 160,-80,80, 200, -200, 200); // Trajectories from Central Tracker
+	//h_Eff_CD_NDF[i_charge][i_NDF]; // Tracks divided by Trajectories
       }
       
       
@@ -712,7 +708,11 @@ void CTOF_eff(TString inFileName){
           }
 	}
       }
-           
+
+      //Single track events
+      SecondLoop(4,particles);  //rearrange indices
+
+
       // Getting 2pi events (missing proton)
       if(nonpion == 1 && electrons.size() == 1 && pims.size() == 1 && pips.size() == 1){
  	SetLorentzVector(el,electrons[0]);
@@ -834,7 +834,7 @@ void CTOF_eff(TString inFileName){
   // Determining Efficiencies - Make it a function, or do this in post-batch processing
 
   for(Int_t i_charge=0;i_charge<2;i_charge++){
-    for(Int_t i_topology=0;i_topology<3;i_topology++){
+    for(Int_t i_topology=0;i_topology<4;i_topology++){
       h_Eff_CD[i_charge][i_topology] = (TH2F*)h_Trk_CD[i_charge][i_topology]->Clone(Form("Efficiency_%d_%d",i_charge,i_topology));
 
       h_Eff_CD[i_charge][i_topology]->Divide(h_Traj_CD[i_charge][i_topology]);
@@ -844,10 +844,6 @@ void CTOF_eff(TString inFileName){
 	h_Eff_CD_NDF[i_charge][i_NDF][i_topology] = (TH2F*)h_Trk_CD_NDF[i_charge][i_NDF][i_topology]->Clone(Form("Efficiency_%d_NDF_%d_topology_%d",i_charge,i_NDF,i_topology));
 	h_Eff_CD_NDF[i_charge][i_NDF][i_topology]->Divide(h_Traj_CD_NDF[i_charge][i_NDF][i_topology]);
 	h_Eff_CD_NDF[i_charge][i_NDF][i_topology]->SetTitle(Form("Efficiency %d NDF %d Topology %d",(2*i_charge-1),i_NDF,i_topology));
-
-      h_Eff_CD_NDF_paddle[i_charge][i_NDF][i_topology] = (TH2F*)h_Trk_CD_NDF_paddle[i_charge][i_NDF][i_topology]->Clone(Form("Efficiency2_%d_NDF_%d_topology_%d",i_charge,i_NDF,i_topology));
-      h_Eff_CD_NDF_paddle[i_charge][i_NDF][i_topology]->Divide(h_Traj_CD_NDF_paddle[i_charge][i_NDF][i_topology]);
-      h_Eff_CD_NDF_paddle[i_charge][i_NDF][i_topology]->SetTitle(Form("Efficiency2 %d NDF %d Topology %d",(2*i_charge-1),i_NDF,i_topology));
       }
     }
   }
@@ -873,4 +869,5 @@ void CTOF_eff(){
   CTOF_eff(inFile); //call the analysis function with this filename 
 
 }
+
 
