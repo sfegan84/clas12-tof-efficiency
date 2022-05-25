@@ -3,13 +3,7 @@ Efficiency determination tools for the CLAS12 Time-of-Flight system, analysis ma
 
 CTOF_eff.C - Raw track efficiency determination
 
-CTOF_effMissPim.C - Efficiency determination from missing pi minus in p, pi plus, pi minus events
-
-CTOF_effMissPip.C - Efficiency determination from missing pi plus in p, pi plus, pi minus events
-
-CTOF_effMissProt.C - Efficiency determination from missing proton in p, pi plus, pi minus events
-
-CTOF_effUnified.C - Attempt at unifying all missing particle cases into one code, for ease of processing
+CTOF_effUnified.C - Attempt at unifying all missing particle cases, plus single track, into one code, for ease of processing
 
 All versions run in the same way, with two available methods;
 
