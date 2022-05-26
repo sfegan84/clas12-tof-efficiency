@@ -127,9 +127,9 @@ TH2F *h_Traj_CD_NDF[2][10][4]; // Trajectories from Central Tracker
 TH2F *h_Trk_CD_NDF[2][10][4]; // Trajectories from Central Tracker with energy deposited in CND
 TH2F *h_Eff_CD_NDF[2][10][4]; // Tracks divided by Trajectories
 
-TH2F *h_Traj_CD_NDF_paddle[2][10][3]; // Trajectories from Central Tracker
-TH2F *h_Trk_CD_NDF_paddle[2][10][3]; // Trajectories from Central Tracker with energy deposited in CND
-TH2F *h_Eff_CD_NDF_paddle[2][10][3]; // Tracks divided by Trajectories
+TH2F *h_Traj_CD_NDF_paddle[2][10][4]; // Trajectories from Central Tracker
+TH2F *h_Trk_CD_NDF_paddle[2][10][4]; // Trajectories from Central Tracker with energy deposited in CND
+TH2F *h_Eff_CD_NDF_paddle[2][10][4]; // Tracks divided by Trajectories
 
 TH1F *h_Trk_NDF_CD[2]; // Trajectories from Central Tracker
 
