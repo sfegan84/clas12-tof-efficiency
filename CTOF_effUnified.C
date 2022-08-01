@@ -447,6 +447,7 @@ void SecondLoop(int index, vector<region_part_ptr> particles){
 
 //Provide an input filename. If none provided, a hard coded filename is used (void CTOF_eff() version below)
 void CTOF_eff(TString inFileName){
+//void CTOF_eff(TString inFileName, TString outFileName, TString loader_file, const std::string databaseF){
 
   TString inputFile = inFileName;
 
@@ -457,8 +458,18 @@ void CTOF_eff(TString inFileName){
   // fake.Add(inputFile2.Data());
 
 
+
+
   auto db=TDatabasePDG::Instance();
+
+ // //open comunications with RCDB DBfile must be name of prepare database root file
+ //  const std::string DBfile = databaseF;
+ //  clas12databases::SetRCDBRootConnection(DBfile);
+
   TLorentzVector beam(0,0,10.6,10.6); // beam Px,Py,Pz,E
+  //TLorentzVector beam;
+  Double_t beam_E;
+
   TLorentzVector target(0,0,0,db->GetParticle(2212)->Mass()); // target Px,Py,Pz,E
   TLorentzVector el(0,0,0,db->GetParticle(11)->Mass()); // scattered e^- Px,Py,Pz,E
   TLorentzVector pr(0,0,0,db->GetParticle(2212)->Mass()); // proton Px,Py,Pz,E
@@ -673,6 +684,11 @@ void CTOF_eff(TString inFileName){
     //create the event reader
     clas12reader c12(files->At(i)->GetTitle());
 
+    //RCDB data is for the current run I think
+    auto& rcdbData= c12->rcdb()->current();
+
+    //auto& c12r=fake.C12ref();
+
     Binno++; // Count the number of files, therefore the number of x bins
 
     //c12.setEntries(1E5);
@@ -694,6 +710,15 @@ void CTOF_eff(TString inFileName){
       DeltaP_pr = 0;
       DeltaTheta_pr = 0;
       DeltaPhi_pr = 0;
+
+
+      // Setting beam energy depending on which run it is
+      
+      //GeV it up
+      beam_E = rcdbData.beam_energy*0.001;
+      
+      //beam.SetXYZM(0, 0, beam_E, 0.000511);
+
 
       
       auto electrons=c12.getByID(11);
@@ -889,7 +914,13 @@ void CTOF_eff(){
   TString inFile("/home/stuart/CLAS/Data/skim4_00503*.hipo");
   // TString inputFile2("/volatile/clas12/rg-b/production/recon/spring2019/torus-1/pass1/v0/dst/train/inc/*.hipo");
 
+  TString outFile("/home/stuart/CLAS/CTOF/CTOF_testOutput.root");
+  //TString outFile("/home/stuart/CLAS/CTOF/Test/" + inFileName(inFileName.Length()-17,inFileName.Length()-5) + "_eff.root"); //trim '.hipo' and add '.root' for output file name
+  TString loaderFile("");
+
+  const std::string databaseF("");
+
   CTOF_eff(inFile); //call the analysis function with this filename 
+//CTOF_eff(inFile, outFile, loaderFile, databaseF); //call the analysis function with these filenames
 
 }
-
