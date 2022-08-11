@@ -34,6 +34,8 @@
 #include "TVirtualX.h"
 #include "TMath.h"
 #include "TStyle.h"
+#include "HipoChain.h"
+#include "rcdb_reader.h"
 
 using namespace clas12;
 
@@ -446,8 +448,10 @@ void SecondLoop(int index, vector<region_part_ptr> particles){
 
 
 //Provide an input filename. If none provided, a hard coded filename is used (void CTOF_eff() version below)
-void CTOF_eff(TString inFileName){
-//void CTOF_eff(TString inFileName, TString outFileName, TString loader_file, const std::string databaseF){
+//void CTOF_eff(TString inFileName){
+void CTOF_eff(TString inFileName, TString outFileName, const std::string databaseF){
+
+  cout << "inputfile and chain" << endl;
 
   TString inputFile = inFileName;
 
@@ -459,12 +463,13 @@ void CTOF_eff(TString inFileName){
 
 
 
+  cout << "rcdb connection to file " << databaseF << endl;
 
   auto db=TDatabasePDG::Instance();
 
  // //open comunications with RCDB DBfile must be name of prepare database root file
- //  const std::string DBfile = databaseF;
- //  clas12databases::SetRCDBRootConnection(DBfile);
+   const std::string DBfile = databaseF;
+   clas12databases::SetRCDBRootConnection(DBfile);
 
   TLorentzVector beam(0,0,10.6,10.6); // beam Px,Py,Pz,E
   //TLorentzVector beam;
@@ -508,7 +513,7 @@ void CTOF_eff(TString inFileName){
   // Output file location and name
 
   //TString outFileName("/u/home/sfegan/CTOF_output/" + inFileName(inFileName.Length()-17,inFileName.Length()-5) + "_eff.root"); //trim '.hipo' and add '.root' for output file name
-  TString outFileName("/home/stuart/CLAS/CTOF/Test/" + inFileName(inFileName.Length()-17,inFileName.Length()-5) + "_eff.root"); //trim '.hipo' and add '.root' for output file name
+  ////TString outFileName("/home/stuart/CLAS/CTOF/Test/" + inFileName(inFileName.Length()-17,inFileName.Length()-5) + "_eff.root"); //trim '.hipo' and add '.root' for output file name
   //TString outFileName(inFileName(0,inFileName.Length()-5) + "_eff.root"); //trim '.hipo' and add '.root' for output file name
 
   cout << outFileName << endl;
@@ -684,8 +689,22 @@ void CTOF_eff(TString inFileName){
     //create the event reader
     clas12reader c12(files->At(i)->GetTitle());
 
+   //Creating a chain for the data from different filesc12->queryRcdb();
+   clas12root::HipoChain chain;
+   chain.Add(inFileName);
+   chain.SetReaderTags({0});  //create clas12reader with just tag 0 events
+   auto config_c12=chain.GetC12Reader();
+
+   //dont talk to QADB
+    chain.db()->turnOffQADB();
+
     //RCDB data is for the current run I think
-    auto& rcdbData= c12->rcdb()->current();
+    auto& rcdbData= config_c12->rcdb()->current();
+
+
+
+    //RCDB data is for the current run I think
+    //auto& rcdbData= c12->rcdb()->current();
 
     //auto& c12r=fake.C12ref();
 
@@ -716,10 +735,11 @@ void CTOF_eff(TString inFileName){
       
       //GeV it up
       beam_E = rcdbData.beam_energy*0.001;
+      //beam_E = rcdbData.beam_energy;
       
-      //beam.SetXYZM(0, 0, beam_E, 0.000511);
+      beam.SetXYZM(0, 0, beam_E, 0.000511);
 
-
+      //cout << "beam energy " << beam_E << endl;
       
       auto electrons=c12.getByID(11);
       auto protons=c12.getByID(2212);
@@ -911,16 +931,18 @@ void CTOF_eff(){
   // Data files to process
   //TString inFile("/cache/clas12/rg-a/production/recon/fall2018/torus-1/pass1/v0/dst/train/skim4/skim4_005*.hipo");
   //TString inFile("/volatile/clas12/rg-a/production/recon/fall2018/torus-1/pass1/v0/dst/train/dst/train/skim4/*.hipo");
-  TString inFile("/home/stuart/CLAS/Data/skim4_00503*.hipo");
+  TString inFile("/cache/clas12/rg-a/production/recon/fall2018/torus-1/pass1/v0/dst/train/skim4/skim4_005051.hipo");
   // TString inputFile2("/volatile/clas12/rg-b/production/recon/spring2019/torus-1/pass1/v0/dst/train/inc/*.hipo");
 
-  TString outFile("/home/stuart/CLAS/CTOF/CTOF_testOutput.root");
+  TString outFile("/home/sfegan/CTOF_rcdbTest5051.root");
   //TString outFile("/home/stuart/CLAS/CTOF/Test/" + inFileName(inFileName.Length()-17,inFileName.Length()-5) + "_eff.root"); //trim '.hipo' and add '.root' for output file name
-  TString loaderFile("");
+  //TString loaderFile("");
 
-  const std::string databaseF("");
+  const std::string databaseF("/home/sfegan/rcdb.root");
 
-  CTOF_eff(inFile); //call the analysis function with this filename 
+  cout << "calling function" <<endl;
+
+  CTOF_eff(inFile,outFile,databaseF); //call the analysis function with this filename 
 //CTOF_eff(inFile, outFile, loaderFile, databaseF); //call the analysis function with these filenames
 
 }
